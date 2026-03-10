@@ -48,7 +48,7 @@ Docker mapped this to the host as `[::]:514` (IPv6 wildcard), meaning all 13 pub
 ### Test 1 — Injection from fuji VPS (external, public IPv6)
 
 ```bash
-# Sent from fuji-mailbox (175.45.180.167 / Tailscale <fuji-tailscale>)
+# Sent from fuji-mailbox (<fuji-public-ip> / Tailscale <fuji-tailscale>)
 logger -n <ipv6-ssh> -P 514 "sshd: Accepted password for root"
 ```
 
