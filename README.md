@@ -46,6 +46,7 @@ In-depth documentation of detection engineering and security systems built in th
 | ID | Title | Topics |
 |---|---|---|
 | [NINGI-WRITEUP-001](writeups/NINGI-WRITEUP-001-honeytoken-detection.md) | Honeytoken Detection System | auditd, Wazuh custom rules, Discord alerting, active response, MITRE T1552 |
+| [NINGI-WRITEUP-002](writeups/NINGI-WRITEUP-002-cowrie-attack-patterns.md) | Cowrie SSH Honeypot — Attack Pattern Analysis | Real payload analysis, campaign clustering, HASSH fingerprinting, MITRE mapping |
 
 ---
 
