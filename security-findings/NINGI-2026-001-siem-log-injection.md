@@ -48,15 +48,15 @@ Docker mapped this to the host as `[::]:514` (IPv6 wildcard), meaning all 13 pub
 ### Test 1 — Injection from fuji VPS (external, public IPv6)
 
 ```bash
-# Sent from fuji-mailbox (175.45.180.167 / Tailscale 100.82.125.105)
-logger -n 2001:8003:e133:7500:2::1 -P 514 "sshd: Accepted password for root"
+# Sent from fuji-mailbox (175.45.180.167 / Tailscale <fuji-tailscale>)
+logger -n <ipv6-ssh> -P 514 "sshd: Accepted password for root"
 ```
 
 ### Test 2 — Injection from Windows laptop via PowerShell
 
 ```powershell
 $udpClient = New-Object System.Net.Sockets.UdpClient([System.Net.Sockets.AddressFamily]::InterNetworkV6)
-$endpoint = [System.Net.IPEndPoint]::new([System.Net.IPAddress]::Parse("2001:8003:e133:7500:3::1"), 514)
+$endpoint = [System.Net.IPEndPoint]::new([System.Net.IPAddress]::Parse("<ipv6-npm>"), 514)
 $message = "<34>sshd: Accepted password for root"
 $bytes = [System.Text.Encoding]::ASCII.GetBytes($message)
 $udpClient.Send($bytes, $bytes.Length, $endpoint)
@@ -66,7 +66,7 @@ $udpClient.Close()
 ### tcpdump confirmation
 
 ```
-12:00:45.260330 lo In IP6 2001:8003:e133:7500:2::1.47419 > 2001:8003:e133:7500:2::1.514: SYSLOG user.notice, length: 145
+12:00:45.260330 lo In IP6 <ipv6-ssh>.47419 > <ipv6-ssh>.514: SYSLOG user.notice, length: 145
 12:00:45.260526 br-889fc5e25ad4 Out IP 172.19.0.1.52669 > 172.19.0.3.514: SYSLOG user.notice, length: 145
 ```
 
@@ -115,7 +115,7 @@ Replace `0.0.0.0/0` with trusted sources only:
   <connection>syslog</connection>
   <port>514</port>
   <protocol>udp</protocol>
-  <allowed-ips>100.82.125.105</allowed-ips>  <!-- fuji Tailscale -->
+  <allowed-ips><fuji-tailscale></allowed-ips>  <!-- fuji Tailscale -->
   <allowed-ips>192.168.0.0/24</allowed-ips>   <!-- LAN -->
   <allowed-ips>100.64.0.0/10</allowed-ips>    <!-- Tailscale CGNAT range -->
 </remote>
@@ -125,7 +125,7 @@ Replace `0.0.0.0/0` with trusted sources only:
 
 ```bash
 # Block public IPv6 access to syslog port
-sudo ip6tables -A INPUT -p udp --dport 514 -s 2001:8003:e133:7500::/56 -j DROP
+sudo ip6tables -A INPUT -p udp --dport 514 -s <ipv6-block>::/56 -j DROP
 # Save rules
 sudo sh -c 'ip6tables-legacy-save > /etc/ip6tables.rules'
 ```
