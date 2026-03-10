@@ -39,6 +39,16 @@ A two-node homelab running 24/7 with real attack traffic, honeypots, and SIEM mo
 
 ---
 
+## Writeups
+
+In-depth documentation of detection engineering and security systems built in the lab.
+
+| ID | Title | Topics |
+|---|---|---|
+| [NINGI-WRITEUP-001](writeups/NINGI-WRITEUP-001-honeytoken-detection.md) | Honeytoken Detection System | auditd, Wazuh custom rules, Discord alerting, active response, MITRE T1552 |
+
+---
+
 ## Tools
 
 | Tool | Description |
