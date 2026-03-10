@@ -18,10 +18,10 @@ An unauthenticated attacker with IPv6 access to the Ubuntu homelab server can in
 
 | Component | Detail |
 |---|---|
-| Host | Ubuntu 24.04, `192.168.0.155` / `1.156.160.89` |
+| Host | Ubuntu 24.04, `192.168.0.x` / `<public-ip>` |
 | SIEM | Wazuh 4.14.0 (containerised, single-node) |
 | Exposed port | UDP 514 (syslog) — docker-proxy → wazuh-remoted |
-| IPv6 block | `2001:8003:e133:7500::/56` (full /56 routed by ISP) |
+| IPv6 block | `<ipv6-block>/56` (full /56 routed by ISP) |
 | Affected addresses | All 13 `7500::` addresses bound to eno1 |
 
 ---
