@@ -99,20 +99,7 @@ Internet
     │
     ├── fuji VPS (BinaryLane QLD)
     │       ├── Cowrie SSH honeypot (port 22)
-    │       ├── Wazuh agent → home SIEM
-    │       └── Recon stack (Docker)
-    │               ├── nmap       — port scan + change detection (12-hourly)
-    │               ├── Nuclei     — web vulnerability scan
-    │               ├── WhatWeb    — tech fingerprinting
-    │               ├── Amass      — passive DNS enumeration
-    │               ├── Shodan API — external exposure check
-    │               └── crt.sh     — certificate transparency monitoring
-    │                       │ alerts on change
-    │                       ▼
-    │               Wazuh manager (rules 100300–100309)
-    │                       │
-    │                       ▼
-    │               Discord webhook
+    │       └── Wazuh agent → home SIEM
     │
     │       Tailscale
     │           │
@@ -121,7 +108,20 @@ Internet
             ├── Grafana + Prometheus (metrics)
             ├── Nginx Proxy Manager (reverse proxy, SSL)
             ├── Media stack (Plex, Sonarr, Radarr, etc.)
-            └── Discord (real-time alerts via webhook)
+            ├── Discord (real-time alerts via webhook)
+            └── Recon stack (Docker) [planned — ningi.dev]
+                    ├── nmap       — port scan + change detection (12-hourly)
+                    ├── Nuclei     — web vulnerability scan
+                    ├── WhatWeb    — tech fingerprinting
+                    ├── Amass      — passive DNS enumeration
+                    ├── Shodan API — external exposure check
+                    └── crt.sh     — certificate transparency monitoring
+                            │ alerts on change
+                            ▼
+                    Wazuh manager (rules 100300–100309)
+                            │
+                            ▼
+                    Discord webhook
 ```
 
 ---
