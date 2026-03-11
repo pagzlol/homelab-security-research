@@ -1,0 +1,10 @@
+# =============================================================================
+# /recon/crontab — recon-scheduler cron schedule
+# Uses supercronic (drop-in cron for containers, no syslog noise)
+# =============================================================================
+
+# Full scan every 12 hours (2am and 2pm)
+0 2,14 * * * /recon/monitor.sh >> /scans/cron.log 2>&1
+
+# DNS-only check every 15 minutes (cheap, fast)
+*/15 * * * * /recon/dnsscan.sh ${TARGET_DOMAIN} /scans/latest /scans/latest >> /scans/dns_cron.log 2>&1

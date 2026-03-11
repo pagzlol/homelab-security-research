@@ -1,0 +1,84 @@
+# =============================================================================
+# Wazuh custom rules for attack surface monitoring
+# Add to /var/ossec/etc/rules/local_rules.xml on Wazuh manager
+# =============================================================================
+
+<!-- Base rule: parse attack surface log -->
+<rule id="100300" level="0">
+  <decoded_as>json</decoded_as>
+  <field name="event">\.+</field>
+  <description>Attack surface monitor event</description>
+  <group>attack_surface,</group>
+</rule>
+
+<!-- New port exposed -->
+<rule id="100301" level="12">
+  <if_sid>100300</if_sid>
+  <field name="event">new_port_exposed</field>
+  <description>Attack surface: new port exposed on $(data.target) — $(data.detail)</description>
+  <group>attack_surface,port_change,</group>
+</rule>
+
+<!-- Port closed (service may have stopped) -->
+<rule id="100302" level="5">
+  <if_sid>100300</if_sid>
+  <field name="event">port_closed</field>
+  <description>Attack surface: port closed on $(data.target) — $(data.detail)</description>
+  <group>attack_surface,port_change,</group>
+</rule>
+
+<!-- DNS record changed -->
+<rule id="100303" level="12">
+  <if_sid>100300</if_sid>
+  <field name="event">dns_record_changed</field>
+  <description>Attack surface: DNS record changed for $(data.target)</description>
+  <group>attack_surface,dns_change,</group>
+</rule>
+
+<!-- New subdomain detected -->
+<rule id="100304" level="8">
+  <if_sid>100300</if_sid>
+  <field name="event">new_subdomain_detected</field>
+  <description>Attack surface: new subdomain observed — $(data.detail)</description>
+  <group>attack_surface,dns_change,</group>
+</rule>
+
+<!-- Shodan newly indexed port -->
+<rule id="100305" level="12">
+  <if_sid>100300</if_sid>
+  <field name="event">shodan_new_port_indexed</field>
+  <description>Attack surface: Shodan indexed new port on $(data.target) — $(data.detail)</description>
+  <group>attack_surface,shodan,</group>
+</rule>
+
+<!-- Shodan CVE detected -->
+<rule id="100306" level="15">
+  <if_sid>100300</if_sid>
+  <field name="event">shodan_cve_detected</field>
+  <description>Attack surface: Shodan flagged CVE on $(data.target) — $(data.detail)</description>
+  <group>attack_surface,shodan,vulnerability,</group>
+</rule>
+
+<!-- Nuclei finding -->
+<rule id="100307" level="12">
+  <if_sid>100300</if_sid>
+  <field name="event">nuclei_finding</field>
+  <description>Attack surface: Nuclei finding on $(data.target) — $(data.detail)</description>
+  <group>attack_surface,vulnerability,</group>
+</rule>
+
+<!-- Web fingerprint changed -->
+<rule id="100308" level="8">
+  <if_sid>100300</if_sid>
+  <field name="event">web_fingerprint_changed</field>
+  <description>Attack surface: web fingerprint changed for $(data.target)</description>
+  <group>attack_surface,web,</group>
+</rule>
+
+<!-- New certificate transparency entry -->
+<rule id="100309" level="8">
+  <if_sid>100300</if_sid>
+  <field name="event">new_cert_transparency</field>
+  <description>Attack surface: new TLS cert issued — $(data.detail)</description>
+  <group>attack_surface,certificate,</group>
+</rule>

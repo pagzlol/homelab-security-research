@@ -1,0 +1,56 @@
+# =============================================================================
+# docker-compose.yml — ningi-recon attack surface scanner
+# Deploy on fuji VPS alongside Cowrie
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # recon-scheduler
+  # Runs the monitor on a cron schedule using supercronic (cron inside Docker)
+  # Writes scan results to ./scans volume
+  # Writes Wazuh alerts to /var/ossec/logs/attack_surface.log
+  # ---------------------------------------------------------------------------
+  recon-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ningi-recon:latest
+    container_name: recon-scheduler
+    restart: unless-stopped
+
+    # Override CMD to run supercronic with crontab
+    command: ["/usr/local/bin/supercronic", "/recon/crontab"]
+
+    environment:
+      - TARGET_IP=${TARGET_IP}
+      - TARGET_DOMAIN=${TARGET_DOMAIN}
+      - SHODAN_API_KEY=${SHODAN_API_KEY:-}
+
+    volumes:
+      # Scan output
+      - ./scans:/scans
+      # Wazuh alert log — shared with wazuh-agent on fuji
+      - /var/ossec/logs:/var/ossec/logs
+      # Nuclei templates cache — persist across runs
+      - nuclei-templates:/root/nuclei-templates
+
+    # No ports needed — this is an outbound-only scanner
+    network_mode: host
+
+    # Resource limits — don't let nmap eat the VPS
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  nuclei-templates:
+    driver: local
