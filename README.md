@@ -58,6 +58,7 @@ In-depth documentation of detection engineering and security systems built in th
 | `wazuh_realtime.py` | Polls OpenSearch every 60s, posts L12+ alerts to Discord with ASN + rDNS enrichment. Honeytokens fire individually and urgently; regular alerts are batched. |
 | `wazuh_digest.py` | Daily 8am digest — summarises honeypot activity, top attacker IPs, top commands, and interesting activity from the last 24 hours. |
 | `backup.sh` | Nightly backup of all compose files, scripts, Wazuh rules, and fuji configs to a private GitHub repo via Tailscale SSH. |
+| `tools/recon/` | Dockerised attack surface monitoring stack — nmap, Nuclei, WhatWeb, Amass, Shodan. Runs on fuji, reports changes to Wazuh + Discord. |
 
 ---
 
@@ -96,9 +97,25 @@ In-depth documentation of detection engineering and security systems built in th
 ```
 Internet
     │
-    ├── fuji VPS (Cowrie honeypot, Wazuh agent)
-    │       │ Tailscale
-    │       ▼
+    ├── fuji VPS (BinaryLane QLD)
+    │       ├── Cowrie SSH honeypot (port 22)
+    │       ├── Wazuh agent → home SIEM
+    │       └── Recon stack (Docker)
+    │               ├── nmap       — port scan + change detection (12-hourly)
+    │               ├── Nuclei     — web vulnerability scan
+    │               ├── WhatWeb    — tech fingerprinting
+    │               ├── Amass      — passive DNS enumeration
+    │               ├── Shodan API — external exposure check
+    │               └── crt.sh     — certificate transparency monitoring
+    │                       │ alerts on change
+    │                       ▼
+    │               Wazuh manager (rules 100300–100309)
+    │                       │
+    │                       ▼
+    │               Discord webhook
+    │
+    │       Tailscale
+    │           │
     └── Ubuntu home server
             ├── Wazuh SIEM (manager + indexer + dashboard)
             ├── Grafana + Prometheus (metrics)
@@ -120,6 +137,7 @@ Internet
 - Log enrichment (GeoIP, ASN, rDNS)
 - Docker Compose infrastructure management
 - IPv6 dual-stack networking and attack surface analysis
+- Automated attack surface monitoring (nmap, Nuclei, Amass, Shodan)
 - Python scripting for SIEM alerting and automation
 - Linux hardening (UFW, auditd, fail2ban, chattr)
 
