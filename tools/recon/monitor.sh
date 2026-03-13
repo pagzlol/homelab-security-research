@@ -8,12 +8,12 @@
 set -euo pipefail
 
 # --- Config ---
-TARGET_IP="<home-public-ip>"          # Your home server public IPv4
-TARGET_IPV6="<home-ipv6>"            # Your home server public IPv6
-TARGET_DOMAIN="ningi.io"             # Your domain
+TARGET_IP="${TARGET_IP:-<home-public-ip>}"          # Your home server public IPv4
+TARGET_IPV6="${TARGET_IPV6:-<home-ipv6>}"            # Your home server public IPv6
+TARGET_DOMAIN="${TARGET_DOMAIN:-ningi.dev}"             # Your domain
 SHODAN_API_KEY="${SHODAN_API_KEY:-}"  # Set in secrets.env
 WAZUH_LOG="/var/ossec/logs/attack_surface.log"
-SCAN_DIR="/home/t/attack-surface-scans"
+SCAN_DIR="${SCAN_DIR:-/scans}"
 DATE=$(date +%F)
 TIME=$(date +%H%M)
 RUN_DIR="$SCAN_DIR/runs/$DATE-$TIME"

@@ -31,7 +31,8 @@ services:
       # Scan output
       - ./scans:/scans
       # Wazuh alert log — shared with wazuh-agent on fuji
-      - /var/ossec/logs:/var/ossec/logs
+      - /var/lib/docker/volumes/single-node_wazuh_logs/_data:/var/ossec/logs      
+      # - /var/ossec/logs:/var/ossec/logs
       # Nuclei templates cache — persist across runs
       - nuclei-templates:/root/nuclei-templates
 
