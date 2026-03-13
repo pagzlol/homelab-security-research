@@ -7,7 +7,7 @@
 TARGET="$1"
 RUN_DIR="$2"
 PREV_DIR="$3"
-WAZUH_LOG="/var/ossec/logs/attack_surface.log"
+WAZUH_LOG="${WAZUH_LOG:-/var/lib/docker/volumes/single-node_wazuh_logs/_data/attack_surface.log}"
 
 log() { echo "[webscan] $*" | tee -a "$RUN_DIR/monitor.log"; }
 
@@ -32,12 +32,12 @@ SUBDOMAINS=(
 
 for url in "${SUBDOMAINS[@]}"; do
     subdomain=$(echo "$url" | sed 's|https://||')
-    outfile="$RUN_DIR/whatweb_${subdomain//./_}.txt"
+    safe_name="${subdomain//./_}"
+    outfile="$RUN_DIR/whatweb_${safe_name}.txt"
     log "Fingerprinting $url"
     whatweb --no-errors -a 3 "$url" > "$outfile" 2>/dev/null || true
 
-    # Check for unexpected tech stack changes
-    PREV_WEB="$PREV_DIR/whatweb_${subdomain//./_}.txt"
+    PREV_WEB="$PREV_DIR/whatweb_${safe_name}.txt"
     if [ -f "$PREV_WEB" ]; then
         DIFF=$(diff "$PREV_WEB" "$outfile" || true)
         if [ -n "$DIFF" ]; then
@@ -50,10 +50,8 @@ done
 # --- Nuclei vulnerability scan ---
 log "Running Nuclei scan on $TARGET"
 
-# Update templates first
 nuclei -update-templates -silent 2>/dev/null || true
 
-# Run with medium/high/critical severity only to avoid noise
 nuclei \
     -target "https://$TARGET" \
     -severity medium,high,critical \
@@ -61,7 +59,6 @@ nuclei \
     -json \
     -o "$RUN_DIR/nuclei.json" 2>/dev/null || true
 
-# Parse nuclei results and alert on findings
 if [ -f "$RUN_DIR/nuclei.json" ] && [ -s "$RUN_DIR/nuclei.json" ]; then
     while IFS= read -r line; do
         TEMPLATE=$(echo "$line" | python3 -c "import sys,json; d=json.loads(sys.stdin.read()); print(d.get('template-id','unknown'))" 2>/dev/null)

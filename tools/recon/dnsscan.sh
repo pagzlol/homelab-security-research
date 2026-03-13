@@ -9,7 +9,7 @@ RUN_DIR="$2"
 PREV_DIR="$3"
 WAZUH_LOG="/var/ossec/logs/attack_surface.log"
 SHODAN_API_KEY="${SHODAN_API_KEY:-}"
-TARGET_IP="<home-public-ip>"
+TARGET_IP="${TARGET_IP:-<home-public-ip>}"
 
 log() { echo "[dnsscan] $*" | tee -a "$RUN_DIR/monitor.log"; }
 
@@ -54,15 +54,27 @@ else
 fi
 
 # --- Amass subdomain enumeration ---
-log "Running Amass subdomain enum for $TARGET"
+# --- Subdomain enumeration via CT logs (more reliable than Amass for small domains) ---
+log "Enumerating subdomains for $TARGET via CT logs"
 
-amass enum -passive -d "$TARGET" \
-    -o "$RUN_DIR/amass.txt" 2>/dev/null || true
-
-sort "$RUN_DIR/amass.txt" > "$RUN_DIR/subdomains.txt" 2>/dev/null || touch "$RUN_DIR/subdomains.txt"
+curl -s "https://crt.sh/?q=%25.$TARGET&output=json" 2>/dev/null \
+    | python3 -c "
+import json, sys
+try:
+    data = json.load(sys.stdin)
+    names = sorted(set(
+        n.strip().lstrip('*.')
+        for d in data
+        for n in d.get('name_value','').split('\n')
+        if '$TARGET' in n
+    ))
+    for n in names:
+        print(n)
+except Exception:
+    pass
+" > "$RUN_DIR/subdomains.txt" 2>/dev/null || touch "$RUN_DIR/subdomains.txt"
 
 log "Subdomains found: $(wc -l < "$RUN_DIR/subdomains.txt")"
-
 # --- Subdomain change detection ---
 PREV_SUBS="$PREV_DIR/subdomains.txt"
 if [ -f "$PREV_SUBS" ]; then
@@ -82,66 +94,59 @@ if [ -f "$PREV_SUBS" ]; then
     fi
 else
     log "No previous subdomain list — establishing baseline"
-fi
 
-# --- Shodan monitoring ---
-if [ -n "$SHODAN_API_KEY" ]; then
-    log "Querying Shodan for $TARGET_IP"
+# --- Shodan InternetDB (no API key required) ---
+log "Querying Shodan InternetDB for $TARGET_IP"
 
-    curl -s "https://api.shodan.io/shodan/host/$TARGET_IP?key=$SHODAN_API_KEY" \
-        > "$RUN_DIR/shodan.json" 2>/dev/null || true
+curl -s "https://internetdb.shodan.io/$TARGET_IP" \
+    > "$RUN_DIR/shodan.json" 2>/dev/null || true
 
-    if [ -f "$RUN_DIR/shodan.json" ] && [ -s "$RUN_DIR/shodan.json" ]; then
-        # Extract open ports Shodan sees
-        python3 - << 'PYEOF' >> "$RUN_DIR/monitor.log"
-import json, sys
+if [ -f "$RUN_DIR/shodan.json" ] && [ -s "$RUN_DIR/shodan.json" ]; then
+    python3 - << PYEOF >> "$RUN_DIR/monitor.log"
+import json
 with open("$RUN_DIR/shodan.json") as f:
     try:
         d = json.load(f)
         ports = d.get("ports", [])
-        print(f"[dnsscan] Shodan sees open ports: {ports}")
-        vulns = d.get("vulns", {})
+        vulns = d.get("vulns", [])
+        hostnames = d.get("hostnames", [])
+        print(f"[dnsscan] InternetDB open ports: {ports}")
+        if hostnames:
+            print(f"[dnsscan] InternetDB hostnames: {hostnames}")
         if vulns:
-            print(f"[dnsscan] Shodan CVEs: {list(vulns.keys())}")
+            print(f"[dnsscan] InternetDB CVEs: {vulns}")
     except:
-        print("[dnsscan] Could not parse Shodan response")
+        print("[dnsscan] Could not parse InternetDB response")
 PYEOF
 
-        # Extract Shodan ports for comparison
-        python3 -c "
+    # Port change detection
+    python3 -c "
 import json
 with open('$RUN_DIR/shodan.json') as f:
     d = json.load(f)
-    ports = sorted(d.get('ports', []))
-    for p in ports:
+    for p in sorted(d.get('ports', [])):
         print(p)
 " > "$RUN_DIR/shodan_ports.txt" 2>/dev/null || true
 
-        # Compare Shodan ports vs nmap ports — mismatch = interesting
-        PREV_SHODAN="$PREV_DIR/shodan_ports.txt"
-        if [ -f "$PREV_SHODAN" ]; then
-            NEW_SHODAN=$(comm -13 "$PREV_SHODAN" "$RUN_DIR/shodan_ports.txt")
-            if [ -n "$NEW_SHODAN" ]; then
-                alert "shodan_new_port_indexed" "Shodan newly indexed port(s): $NEW_SHODAN on $TARGET_IP" "high"
-            fi
+    PREV_SHODAN="$PREV_DIR/shodan_ports.txt"
+    if [ -f "$PREV_SHODAN" ]; then
+        NEW_SHODAN=$(comm -13 "$PREV_SHODAN" "$RUN_DIR/shodan_ports.txt")
+        if [ -n "$NEW_SHODAN" ]; then
+            alert "shodan_new_port_indexed" "InternetDB newly indexed port(s): $NEW_SHODAN on $TARGET_IP" "high"
         fi
+    fi
 
-        # Alert on any CVEs Shodan found
-        python3 -c "
+    # CVE alerts
+    python3 -c "
 import json
 with open('$RUN_DIR/shodan.json') as f:
-    d = json.load(f)
-    for cve, detail in d.get('vulns', {}).items():
+    for cve in json.load(f).get('vulns', []):
         print(cve)
 " 2>/dev/null | while read -r cve; do
-            alert "shodan_cve_detected" "Shodan flagged $cve on $TARGET_IP" "critical"
-        done
-    fi
-else
-    log "SHODAN_API_KEY not set — skipping Shodan check"
+        alert "shodan_cve_detected" "InternetDB flagged $cve on $TARGET_IP" "critical"
+    done
 fi
 
-# --- Certificate Transparency monitoring ---
 log "Checking certificate transparency logs for $TARGET"
 
 curl -s "https://crt.sh/?q=%25.$TARGET&output=json" 2>/dev/null \
@@ -166,4 +171,5 @@ if [ -f "$PREV_CERTS" ] && [ -f "$RUN_DIR/crtsh.txt" ]; then
     else
         log "No new certificates in CT logs"
     fi
+fi
 fi
