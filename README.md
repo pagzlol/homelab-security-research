@@ -10,11 +10,12 @@ A two-node homelab running 24/7 with real attack traffic, honeypots, and SIEM mo
 
 ### Ubuntu Home Server
 - **OS:** Ubuntu 24.04
-- **Stack:** Docker Compose — media, monitoring, and security containers
+- **Stack:** Docker Compose — infrastructure, monitoring, media, and security stacks
 - **SIEM:** Wazuh 4.14.0 (containerised single-node)
 - **Monitoring:** Grafana + Prometheus + cAdvisor + Uptime Kuma
 - **Reverse proxy:** Nginx Proxy Manager with Let's Encrypt SSL
 - **Network:** Dual-stack IPv4/IPv6, Tailscale mesh VPN
+- **Storage:** mergerfs 4.5TB pool (931GB + 4TB drives)
 
 ### fuji-mailbox VPS (BinaryLane QLD)
 - **Purpose:** Public-facing honeypot server
@@ -48,6 +49,8 @@ In-depth documentation of detection engineering and security systems built in th
 | [NINGI-WRITEUP-001](writeups/NINGI-WRITEUP-001-honeytoken-detection.md) | Honeytoken Detection System | auditd, Wazuh custom rules, Discord alerting, active response, MITRE T1552 |
 | [NINGI-WRITEUP-002](writeups/NINGI-WRITEUP-002-cowrie-attack-patterns.md) | Cowrie SSH Honeypot — Attack Pattern Analysis | Real payload analysis, campaign clustering, HASSH fingerprinting, MITRE mapping |
 | [NINGI-WRITEUP-003](writeups/NINGI-WRITEUP-003-attack-surface-monitoring.md) | Automated Attack Surface Monitoring | nmap, nuclei, amass, Shodan, cert transparency, Docker, Wazuh integration |
+| [NINGI-WRITEUP-004](writeups/NINGI-WRITEUP-004-attacker-profile-go-scanner.md) | Attacker Profile: Go-Based Port Scanner | Go scanner attribution, HASSH fingerprinting, C2 correlation, MITRE T1595 |
+| [NINGI-WRITEUP-005](writeups/NINGI-WRITEUP-005-mirai-campaign-analysis.md) | Mirai Campaign Analysis — 193.32.162.188 | Mirai dropper analysis, malware artifact recovery, dual concurrent campaigns, MITRE T1133/T1059 |
 
 ---
 
@@ -58,7 +61,7 @@ In-depth documentation of detection engineering and security systems built in th
 | `wazuh_realtime.py` | Polls OpenSearch every 60s, posts L12+ alerts to Discord with ASN + rDNS enrichment. Honeytokens fire individually and urgently; regular alerts are batched. |
 | `wazuh_digest.py` | Daily 8am digest — summarises honeypot activity, top attacker IPs, top commands, and interesting activity from the last 24 hours. |
 | `backup.sh` | Nightly backup of all compose files, scripts, Wazuh rules, and fuji configs to a private GitHub repo via Tailscale SSH. |
-| `tools/recon/` | Dockerised attack surface monitoring stack — nmap, Nuclei, WhatWeb, Amass, Shodan. Runs on fuji, reports changes to Wazuh + Discord. |
+| `tools/recon/` | Dockerised attack surface monitoring stack — nmap, Nuclei, WhatWeb, Amass, Shodan. Runs on home server, reports changes to Wazuh + Discord. |
 
 ---
 
@@ -107,9 +110,9 @@ Internet
             ├── Wazuh SIEM (manager + indexer + dashboard)
             ├── Grafana + Prometheus (metrics)
             ├── Nginx Proxy Manager (reverse proxy, SSL)
-            ├── Media stack (Plex, Sonarr, Radarr, etc.)
+            ├── Media stack (Plex, Sonarr, Radarr, etc.) — mergerfs 4.5TB pool
             ├── Discord (real-time alerts via webhook)
-            └── Recon stack (Docker) [planned — ningi.dev]
+            └── Recon stack (Docker) [ningi.dev]
                     ├── nmap       — port scan + change detection (12-hourly)
                     ├── Nuclei     — web vulnerability scan
                     ├── WhatWeb    — tech fingerprinting
@@ -133,6 +136,8 @@ Internet
 - Honeypot deployment and integration (Cowrie)
 - Honeytoken design and auditd integration
 - Active response configuration (iptables-legacy auto-block)
+- Threat actor profiling and campaign attribution
+- Malware artifact recovery and analysis (Mirai)
 - Security finding documentation (vulnerability report format)
 - Log enrichment (GeoIP, ASN, rDNS)
 - Docker Compose infrastructure management
