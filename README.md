@@ -37,6 +37,7 @@ A two-node homelab running 24/7 with real attack traffic, honeypots, and SIEM mo
 | ID | Title | Severity | Status |
 |---|---|---|---|
 | [NINGI-2026-001](security-findings/NINGI-2026-001-siem-log-injection.md) | SIEM Log Injection via IPv6 UDP Syslog | High | Remediated |
+| [NINGI-2026-002](security-findings/NINGI-2026-002-ssh-tunnel-relay-c2.md) | SSH Tunnel Relay Abuse / CDN-Fronted C2 Beaconing | Medium | Documented |
 
 ---
 
