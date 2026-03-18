@@ -13,7 +13,7 @@
 
 ## Summary
 
-Two attacker IPs (`80.94.95.118`, `77.90.185.17`) were observed using the Cowrie SSH honeypot as a **tunnel relay** to beacon to C2 infrastructure hosted on AWS eu-west-1. Across five sessions spanning approximately four and a half hours, both IPs demonstrated an identical automated playbook: authenticate with default credentials, immediately open three sequential direct-tcpip tunnels to a fixed set of AWS, Akamai CDN, and Google IP addresses, then disconnect — with no shell interaction whatsoever. The shared JA4 TLS fingerprint across both source IPs confirms they are running identical malware or tooling. One of the C2 IPs (`54.171.235.137`) is associated with `redact.hostname`, a subdomain of a legitimate London-based AI company, consistent with domain fronting to blend C2 traffic with legitimate enterprise SaaS traffic.
+Two attacker IPs (`80.94.95.118`, `77.90.185.17`) were observed using the Cowrie SSH honeypot as a **tunnel relay** to beacon to C2 infrastructure hosted on AWS eu-west-1. Across five sessions spanning approximately four and a half hours, both IPs demonstrated an identical automated playbook: authenticate with default credentials, immediately open three sequential direct-tcpip tunnels to a fixed set of AWS, Akamai CDN, and Google IP addresses, then disconnect — with no shell interaction whatsoever. The shared JA4 TLS fingerprint across both source IPs confirms they are running identical malware or tooling. One of the C2 IPs (`54.171.235.137`) is associated with `[redacted]`, a subdomain of a legitimate London-based AI company, consistent with domain fronting to blend C2 traffic with legitimate enterprise SaaS traffic.
 
 ---
 
@@ -109,7 +109,7 @@ This fingerprint was identical across all tunnel sessions from both `80.94.95.11
 | Protocol Tunneling | T1572 | SSH direct-tcpip channels used to tunnel HTTPS to C2 |
 | Multi-hop Proxy | T1090.003 | Compromised SSH server used as relay to obscure C2 origin |
 | Password Spraying | T1110.001 | Default credentials (root/root123, test/test) used across mass scanning |
-| Domain Fronting | T1090.004 | scim.audiostack.ai SNI used to disguise C2 TLS traffic |
+| Domain Fronting | T1090.004 | [redacted — disclosure pending] SNI used to disguise C2 TLS traffic |
 
 ---
 
