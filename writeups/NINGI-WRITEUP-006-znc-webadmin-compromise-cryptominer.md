@@ -16,7 +16,7 @@ admin interface. An attacker accessed the web admin panel using a cracked
 SHA-256 password hash, dynamically loaded ZNC's built-in `shell` module,
 and used it to drop and execute a cryptominer binary (`/tmp/jWJRuLLc`) as
 the local user `t`. The miner ran at 800% CPU for approximately two hours
-before being detected by Claude Code's process anomaly observation.
+before being detected by opterator noticing increased CPU useage and htop.
 
 The attack was made possible by three compounding failures: an unrestricted
 listener binding, a weak password hash format, and a missing auditd
