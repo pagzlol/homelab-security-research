@@ -80,13 +80,12 @@ On 2026-03-22 the Ubuntu home server was compromised via an exposed ZNC IRC boun
 web admin interface. The entry path was IPv6 — the server had a public IPv6 address,
 ZNC was bound to all interfaces with no host restriction, and UFW allowed port 45678
 from anywhere including IPv6. The password had been silently downgraded from Argon2id
-to SHA-256 during a ZNC upgrade (bad advice from an AI tool), making it crackable
-offline in minutes.
+to SHA-256 during a ZNC upgrade, making it crackable offline in minutes.
 
 The attacker accessed webadmin at 00:51 AEST while the operator slept, dynamically
 loaded ZNC's `shell` module, and at 07:50 dropped and executed a cryptominer
 (`/tmp/jWJRuLLc`) running at 800% CPU. It ran for ~2 hours before being spotted by
-Claude Code's process anomaly detection in an interactive session. A full forensic
+process anomaly detection in an interactive session.htop confirmed 800% CPU USEAGE. A full forensic
 investigation was conducted before both nodes were decommissioned.
 
 **The one-line lesson:** IPv4 and IPv6 are separate attack surfaces. Hardening one
