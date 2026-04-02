@@ -1,7 +1,7 @@
-![ningi.dev banner](assets/reddit-header-ningi.svg)
+![ningi.dev banner](assets/ningi-header.svg)
 
 <p align="center">
-  <img src="assets/reddit-avatar-ningi-v2.png" alt="ningi.dev logo" width="120" />
+  <img src="assets/ningi-avatar.png" alt="ningi.dev logo" width="120" />
 </p>
 
 # Troy | Homelab Security Research Portfolio
@@ -55,9 +55,9 @@ The main lesson that stuck is simple: I do not assume a service is only listenin
 
 ## Brand Assets
 
-- Main avatar: [`assets/reddit-avatar-ningi-v2.png`](assets/reddit-avatar-ningi-v2.png)
-- Alternate avatar source: [`assets/reddit-avatar-ningi-v2.svg`](assets/reddit-avatar-ningi-v2.svg)
-- Profile banner / repo header: [`assets/reddit-header-ningi.svg`](assets/reddit-header-ningi.svg)
+- Main avatar: [`assets/ningi-avatar.png`](assets/ningi-avatar.png)
+- Alternate avatar source: [`assets/ningi-avatar.svg`](assets/ningi-avatar.svg)
+- Profile banner / repo header: [`assets/ningi-header.svg`](assets/ningi-header.svg)
 
 ---
 
