@@ -9,7 +9,7 @@
 
 ## Overview
 
-This writeup documents the design and implementation of an automated attack surface monitoring system for the ningi homelab. The system runs from an external vantage point (fuji VPS) and scans the home server's public IP on a schedule, detecting changes in exposed ports, web fingerprints, DNS records, subdomains, and TLS certificates. All change events are forwarded to Wazuh and surfaced as Discord alerts.
+This writeup documents the design and implementation of the automated attack-surface monitoring system I built for the homelab. The system runs from an external vantage point on the fuji VPS and scans the home server's public IP on a schedule, detecting changes in exposed ports, web fingerprints, DNS records, subdomains, and TLS certificates. All change events are forwarded to Wazuh and surfaced as Discord alerts.
 
 The core insight: **you can't detect what you can't see from the outside.** Scanning from inside your own network shows you a different picture than what the internet actually sees. Running scans from a separate public VPS gives you an attacker's view of your own infrastructure.
 
@@ -204,4 +204,4 @@ This monitoring system is designed to detect the early stages of the attack life
 
 ---
 
-*Built and documented by Troy — ningi homelab security research, March 2026*
+*I built and documented this monitoring workflow in the homelab in March 2026.*

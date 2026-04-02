@@ -9,7 +9,7 @@
 
 ## Overview
 
-This writeup analyses real attack traffic captured by a Cowrie SSH honeypot running on a public-facing VPS (BinaryLane, Queensland, Australia). The honeypot runs on port 22 with no banner modification — it presents as a standard OpenSSH server. All login attempts and commands shown are from real attackers on the public internet.
+This writeup analyses real attack traffic I captured with a Cowrie SSH honeypot running on a public-facing VPS (BinaryLane, Queensland, Australia). The honeypot runs on port 22 with no banner modification, so it presents as a standard OpenSSH server. All login attempts and commands shown here came from real attackers on the public internet.
 
 Cowrie logs all attacker activity including credentials attempted, commands run, and files downloaded — without the attacker's knowledge that they are inside a sandboxed environment.
 
@@ -231,4 +231,4 @@ Custom Wazuh rules for patterns observed in this analysis:
 
 ---
 
-*All payloads and IPs are from real attack traffic captured by the ningi homelab Cowrie SSH honeypot, March 2026.*
+*Everything in this writeup came from real attack traffic captured by my Cowrie honeypot in March 2026.*

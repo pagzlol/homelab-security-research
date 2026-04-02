@@ -10,9 +10,9 @@
 
 ## Overview
 
-This writeup documents two concurrent campaigns captured by the Cowrie SSH honeypot between 2026-03-06 and 2026-03-13, with real malware artifacts recovered from the Cowrie downloads directory. The first campaign deployed a multi-architecture Mirai botnet dropper (`sshbins.sh`) sourced from attacker-controlled infrastructure. The second injected a well-known Mirai SSH backdoor key into `authorized_keys` across multiple user accounts. Both campaigns are assessed with high confidence as Mirai family variants based on recovered IoCs.
+This writeup documents two concurrent campaigns I captured with the Cowrie SSH honeypot between 2026-03-06 and 2026-03-13, with real malware artefacts recovered from the Cowrie downloads directory. The first campaign deployed a multi-architecture Mirai botnet dropper (`sshbins.sh`) sourced from attacker-controlled infrastructure. The second injected a well-known Mirai SSH backdoor key into `authorized_keys` across multiple user accounts. Based on the recovered IoCs, I assess both campaigns with high confidence as Mirai family variants.
 
-This writeup includes analysis of actual captured malware — `sshbins.sh` (SHA-256: `87962f...`) and an SSH public key (SHA-256: `a8460f...`) — recovered from the Cowrie honeypot filesystem.
+This writeup includes analysis of actual captured malware: `sshbins.sh` (SHA-256: `87962f...`) and an SSH public key (SHA-256: `a8460f...`), both recovered from the Cowrie honeypot filesystem.
 
 ---
 
@@ -121,7 +121,7 @@ The script downloads and attempts to execute 12 binary variants simultaneously:
 Rather than checking architecture first and downloading only the matching binary, the script fires all 12 and lets the OS reject incompatible formats. Only the correct architecture binary executes successfully. This is a reliability optimisation — no recon required, no architecture detection step that could fail.
 
 **wget + curl dual-delivery:**
-Every binary has a `wget` attempt followed by a `curl` fallback — identical to the defense evasion pattern seen in the command execution layer. If one download tool is absent or blocked, the other takes over.
+Every binary has a `wget` attempt followed by a `curl` fallback — identical to the defence evasion pattern seen in the command execution layer. If one download tool is absent or blocked, the other takes over.
 
 **The `ssh` argument:**
 Every binary is invoked with `ssh` as the sole argument: `./tux.x86 ssh`. This argument likely instructs the implant to run in SSH spreading mode — scanning for and attacking other SSH servers, propagating the botnet.
@@ -288,5 +288,5 @@ This single IP generated **147,240 events** — more than the next four attacker
 
 ---
 
-*All artifacts, IPs, commands, and SHA-256 hashes are from real attack traffic captured by the ningi homelab Cowrie SSH honeypot, 2026-02-27 to 2026-03-13.*  
-*Documented by Troy — ningi homelab security research.*
+*Everything in this writeup comes from real attack traffic captured by my Cowrie honeypot between 2026-02-27 and 2026-03-13.*  
+*I documented it as part of the homelab research project.*

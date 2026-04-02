@@ -16,7 +16,7 @@ admin interface. An attacker accessed the web admin panel using a cracked
 SHA-256 password hash, dynamically loaded ZNC's built-in `shell` module,
 and used it to drop and execute a cryptominer binary (`/tmp/jWJRuLLc`) as
 the local user `t`. The miner ran at 800% CPU for approximately two hours
-before being detected by opterator noticing increased CPU useage and htop.
+before I noticed the spike, checked it in `htop`, and started the response.
 
 The attack was made possible by three compounding failures: an unrestricted
 listener binding, a weak password hash format, and a missing auditd
@@ -435,4 +435,4 @@ Before any service goes live on the rebuilt host:
 
 ---
 
-*Built and documented by Troy — ningi homelab security research, March 2026*
+*I documented this incident from my own investigation and rebuild work in March 2026.*

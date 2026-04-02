@@ -9,7 +9,7 @@
 
 ## Overview
 
-A honeytoken is a fake credential or resource that has no legitimate use. If it is ever accessed, that access is by definition malicious or unauthorised. This writeup documents the end-to-end design, deployment, and detection pipeline for two honeytokens deployed on a public-facing VPS running a Cowrie SSH honeypot.
+A honeytoken is a fake credential or resource that has no legitimate use. If it is ever accessed, that access is by definition malicious or unauthorised. In this writeup I document the end-to-end design, deployment, and detection pipeline for two honeytokens I deployed on a public-facing VPS running a Cowrie SSH honeypot.
 
 The system detects credential access within **60 seconds** and fires an urgent Discord alert with full context.
 
@@ -253,4 +253,4 @@ This adds a **cloud-layer tripwire** on top of the local detection — even if t
 
 ---
 
-*Built and documented by Troy — ningi homelab security research, March 2026*
+*I built and documented this detection workflow in the homelab in March 2026.*

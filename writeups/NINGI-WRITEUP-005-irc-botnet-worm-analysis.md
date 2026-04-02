@@ -10,9 +10,9 @@
 
 ## Overview
 
-Two attackers (`141.164.144.181` on 2026-03-02 and `64.92.6.70` on 2026-03-04) uploaded complete copies of a self-replicating IRC botnet worm to the Cowrie honeypot via stdin. The full source was captured intact. The script is a sophisticated bash worm that establishes IRC-based C2 with RSA-signed commands, propagates autonomously via `zmap` and `sshpass`, kills competing malware, hijacks the `pi` user account, and installs boot persistence — all targeting Raspberry Pi devices running default credentials.
+Two attackers (`141.164.144.181` on 2026-03-02 and `64.92.6.70` on 2026-03-04) uploaded complete copies of a self-replicating IRC botnet worm to the Cowrie honeypot via stdin, and I captured the full source intact. The script is a sophisticated bash worm that establishes IRC-based C2 with RSA-signed commands, propagates autonomously via `zmap` and `sshpass`, kills competing malware, hijacks the `pi` user account, and installs boot persistence, all targeting Raspberry Pi devices running default credentials.
 
-This is the most complete malware artifact captured by the ningi honeypot to date. Both uploads are byte-different copies of the same script (different random seed in the Cowrie header only), confirming two independent campaign nodes operating identical tooling.
+This is the most complete malware artefact I captured in the honeypot during this period. Both uploads are byte-different copies of the same script, with only the random seed in the Cowrie header changing, which confirms two independent campaign nodes operating the same tooling.
 
 ---
 
@@ -146,7 +146,7 @@ rm -rf /tmp/cpuminer-multi
 rm -rf /var/tmp/kaiten
 ```
 
-Removes known artifacts of competing malware from temp directories, further consolidating sole control of the host.
+Removes known artefacts of competing malware from temp directories, further consolidating sole control of the host.
 
 ---
 
@@ -297,7 +297,7 @@ grep -r "mdrfckr\|Cl0kIN33" /home/*/.ssh/ /root/.ssh/ 2>/dev/null
 # Check rc.local for persistence
 cat /etc/rc.local
 
-# Check for worm artifacts
+# Check for worm artefacts
 ls /opt/ | grep -E '^[A-Za-z0-9]{8}$'
 
 # Check for IRC bot process
@@ -377,5 +377,5 @@ grep pi /etc/shadow
 
 ---
 
-*All artifacts are from real attack traffic captured by the ningi homelab Cowrie SSH honeypot, 2026-03-02 to 2026-03-13.*  
-*Documented by Troy — ningi homelab security research.*
+*Everything in this writeup came from real attack traffic captured by my Cowrie honeypot between 2026-03-02 and 2026-03-13.*  
+*I documented it as part of the homelab research project.*

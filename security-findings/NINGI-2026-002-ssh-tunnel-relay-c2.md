@@ -13,7 +13,7 @@
 
 ## Summary
 
-Two attacker IPs (`80.94.95.118`, `77.90.185.17`) were observed using the Cowrie SSH honeypot as a **tunnel relay** to beacon to C2 infrastructure hosted on AWS eu-west-1. Across five sessions spanning approximately four and a half hours, both IPs demonstrated an identical automated playbook: authenticate with default credentials, immediately open three sequential direct-tcpip tunnels to a fixed set of AWS, Akamai CDN, and Google IP addresses, then disconnect — with no shell interaction whatsoever. The shared JA4 TLS fingerprint across both source IPs confirms they are running identical malware or tooling. One of the C2 IPs (`54.171.235.137`) is associated with `[redacted]`, a subdomain of a legitimate London-based AI company, consistent with domain fronting to blend C2 traffic with legitimate enterprise SaaS traffic.
+I observed two attacker IPs (`80.94.95.118`, `77.90.185.17`) using the Cowrie SSH honeypot as a **tunnel relay** to beacon to C2 infrastructure hosted on AWS eu-west-1. Across five sessions spanning approximately four and a half hours, both IPs followed the same automated playbook: authenticate with default credentials, immediately open three sequential `direct-tcpip` tunnels to a fixed set of AWS, Akamai CDN, and Google IP addresses, then disconnect with no shell interaction at all. The shared JA4 TLS fingerprint across both source IPs points to the same malware family or tooling. One of the C2 IPs (`54.171.235.137`) is associated with `[redacted]`, a subdomain of a legitimate London-based AI company, which is consistent with domain fronting to blend C2 traffic with legitimate enterprise SaaS traffic.
 
 ---
 
@@ -39,7 +39,7 @@ Every session follows an identical hardcoded sequence with no variation in struc
 connect → kex → login → tunnel #1 (AWS EC2) → tunnel #2 (Akamai CDN) → tunnel #3 (Google) → close
 ```
 
-**Key behavioral characteristics:**
+**Key behavioural characteristics:**
 
 - **No shell interaction.** No commands were executed in any session. The malware opens tunnels programmatically without requesting a PTY or running any commands.
 - **Mechanical timing.** Login to first tunnel: ~5–7 seconds. All three tunnels completed within ~20 seconds. Total session duration: 28–29 seconds consistently.
@@ -143,7 +143,7 @@ This fingerprint was identical across all tunnel sessions from both `80.94.95.11
 
 ## Detection Notes
 
-The behavioral signature is highly distinctive and detectable without deep packet inspection:
+The behavioural signature is highly distinctive and detectable without deep packet inspection:
 
 - SSH session with `direct-tcpip` channel opened within 10 seconds of authentication
 - No PTY request, no shell commands — pure tunnel usage
@@ -151,7 +151,7 @@ The behavioral signature is highly distinctive and detectable without deep packe
 - Session terminates immediately after tunnel attempts complete
 - Destinations consistently include one AWS IP, one Akamai IP, one Google IP
 
-A Cowrie rule or SIEM correlation matching `cowrie.direct-tcpip.request` events with no preceding `cowrie.command.input` events in the same session would reliably identify this behavior.
+A Cowrie rule or SIEM correlation matching `cowrie.direct-tcpip.request` events with no preceding `cowrie.command.input` events in the same session would reliably identify this behaviour.
 
 ---
 
@@ -163,4 +163,4 @@ A Cowrie rule or SIEM correlation matching `cowrie.direct-tcpip.request` events 
 
 ---
 
-*Finding documented from live honeypot data captured by Cowrie SSH honeypot on fuji-mailbox (BinaryLane QLD). Part of the ningi.dev homelab security research project.*
+*I documented this finding from live Cowrie honeypot data captured on fuji-mailbox in March 2026.*

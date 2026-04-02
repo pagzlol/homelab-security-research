@@ -3,14 +3,14 @@
 **Finding ID:** NINGI-2026-001
 **Date:** 2026-03-10
 **Severity:** High
-**Status:** Remediated — 2026-03-10
+**Status:** Remediated - 2026-03-10
 **Environment:** ningi homelab — Ubuntu 24.04 / Wazuh 4.14.0 / Docker
 
 ---
 
 ## Summary
 
-An unauthenticated attacker with IPv6 access to the Ubuntu homelab server can inject arbitrary syslog events directly into the Wazuh SIEM by sending UDP packets to port 514. The Wazuh manager accepted and stored the injected events without any source validation, allowing an attacker to fabricate security alerts, suppress real alerts by flooding the SIEM, or cover their tracks by injecting plausible noise.
+I found that an unauthenticated attacker with IPv6 access to the Ubuntu homelab server could inject arbitrary syslog events directly into the Wazuh SIEM by sending UDP packets to port 514. The Wazuh manager accepted and stored the injected events without any source validation, which meant an attacker could fabricate security alerts, suppress real alerts by flooding the SIEM, or cover their tracks by injecting plausible noise.
 
 ---
 
@@ -170,4 +170,4 @@ Events injected from untrusted sources will show `wazuh->172.19.0.1` as the sour
 
 ---
 
-*Discovered and documented by Troy — ningi homelab security research, March 2026*
+*I found and documented this issue while operating the homelab in March 2026.*
