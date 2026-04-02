@@ -1,3 +1,9 @@
+![ningi.dev banner](assets/reddit-header-ningi.svg)
+
+<p align="center">
+  <img src="assets/reddit-avatar-ningi-v2.png" alt="ningi.dev logo" width="120" />
+</p>
+
 # Troy | Homelab Security Research Portfolio
 
 This repo is a portfolio of the security work I built and ran in my homelab: detections, honeypot monitoring, attack-surface tracking, malware analysis, and incident response.
@@ -46,6 +52,12 @@ It is all based on a live environment. That includes a real compromise in March 
 The original nodes were decommissioned on 2026-03-22 after the compromise documented in [NINGI-WRITEUP-006](writeups/NINGI-WRITEUP-006-znc-webadmin-compromise-cryptominer.md). They have since been restored with a much more paranoid operating mindset.
 
 The main lesson that stuck is simple: I do not assume a service is only listening where I meant it to listen. After any service change, I check `ss -tnlp` and verify the real bind addresses before I trust the config.
+
+## Brand Assets
+
+- Main avatar: [`assets/reddit-avatar-ningi-v2.png`](assets/reddit-avatar-ningi-v2.png)
+- Alternate avatar source: [`assets/reddit-avatar-ningi-v2.svg`](assets/reddit-avatar-ningi-v2.svg)
+- Profile banner / repo header: [`assets/reddit-header-ningi.svg`](assets/reddit-header-ningi.svg)
 
 ---
 

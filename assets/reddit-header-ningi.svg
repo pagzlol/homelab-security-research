@@ -1,0 +1,59 @@
+<svg width="1600" height="480" viewBox="0 0 1600 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="174" y1="58" x2="1327" y2="492" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10263A"/>
+      <stop offset="0.5" stop-color="#09121C"/>
+      <stop offset="1" stop-color="#04070B"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="1096" y1="82" x2="1441" y2="399" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E0FF"/>
+      <stop offset="1" stop-color="#109BC8"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="1111" y1="121" x2="1346" y2="359" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4FBFF"/>
+      <stop offset="0.55" stop-color="#D6F4FF"/>
+      <stop offset="1" stop-color="#83DEFF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="480" fill="url(#bg)"/>
+
+  <g opacity="0.18">
+    <path d="M-14 72L393 479" stroke="#22455F" stroke-width="8"/>
+    <path d="M147 -40L626 439" stroke="#22455F" stroke-width="8"/>
+    <path d="M407 -56L886 423" stroke="#22455F" stroke-width="8"/>
+    <path d="M690 -88L1169 391" stroke="#22455F" stroke-width="8"/>
+    <path d="M980 -95L1459 384" stroke="#22455F" stroke-width="8"/>
+    <path d="M1255 -70L1734 409" stroke="#22455F" stroke-width="8"/>
+  </g>
+
+  <g opacity="0.22">
+    <path d="M0 116H1600" stroke="#2A536E" stroke-width="2"/>
+    <path d="M0 196H1600" stroke="#2A536E" stroke-width="2"/>
+    <path d="M0 276H1600" stroke="#2A536E" stroke-width="2"/>
+    <path d="M0 356H1600" stroke="#2A536E" stroke-width="2"/>
+    <path d="M180 0V480" stroke="#2A536E" stroke-width="2"/>
+    <path d="M340 0V480" stroke="#2A536E" stroke-width="2"/>
+    <path d="M500 0V480" stroke="#2A536E" stroke-width="2"/>
+    <path d="M660 0V480" stroke="#2A536E" stroke-width="2"/>
+    <path d="M820 0V480" stroke="#2A536E" stroke-width="2"/>
+    <path d="M980 0V480" stroke="#2A536E" stroke-width="2"/>
+    <path d="M1140 0V480" stroke="#2A536E" stroke-width="2"/>
+    <path d="M1300 0V480" stroke="#2A536E" stroke-width="2"/>
+    <path d="M1460 0V480" stroke="#2A536E" stroke-width="2"/>
+  </g>
+
+  <g opacity="0.95">
+    <circle cx="1228" cy="240" r="138" fill="#06101A"/>
+    <circle cx="1228" cy="240" r="130" stroke="url(#ring)" stroke-width="8"/>
+    <path d="M1141 321V157H1179L1275 273V157H1315V321H1277L1180 203V321H1141Z" fill="url(#mark)"/>
+    <circle cx="1337" cy="154" r="10" fill="#FF8A5B"/>
+  </g>
+
+  <g opacity="0.98">
+    <text x="108" y="206" fill="#F2FAFF" font-family="Segoe UI, Arial, sans-serif" font-size="68" font-weight="700">ningi.dev</text>
+    <text x="108" y="262" fill="#7BDFFF" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" letter-spacing="2">HOMELAB SECURITY RESEARCH</text>
+    <text x="108" y="320" fill="#B3D3E2" font-family="Segoe UI, Arial, sans-serif" font-size="28">detections, honeypots, attack-surface monitoring, incident response</text>
+    <text x="108" y="370" fill="#89AFC1" font-family="Segoe UI, Arial, sans-serif" font-size="24">built from a live lab, rebuilt with a paranoid mindset</text>
+  </g>
+</svg>
