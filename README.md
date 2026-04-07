@@ -12,6 +12,7 @@ It is all based on a live environment. That includes a real compromise in March 
 
 ## Start Here
 
+- [NINGI-WRITEUP-007](writeups/NINGI-WRITEUP-007-what-i-rebuilt-after-the-znc-compromise.md) - rebuild notes, current stack, and why I left the compromise in
 - [NINGI-WRITEUP-006](writeups/NINGI-WRITEUP-006-znc-webadmin-compromise-cryptominer.md) - incident response, root cause analysis, rebuild lessons
 - [NINGI-WRITEUP-001](writeups/NINGI-WRITEUP-001-honeytoken-detection.md) - detection engineering with auditd, Wazuh, and alerting
 - [NINGI-2026-001](security-findings/NINGI-2026-001-siem-log-injection.md) - security finding, validation, and remediation
@@ -35,6 +36,7 @@ It is all based on a live environment. That includes a real compromise in March 
 
 ### Technical Writeups
 
+- [NINGI-WRITEUP-007](writeups/NINGI-WRITEUP-007-what-i-rebuilt-after-the-znc-compromise.md) - what I rebuilt after the ZNC compromise
 - [NINGI-WRITEUP-001](writeups/NINGI-WRITEUP-001-honeytoken-detection.md) - honeytoken detection system
 - [NINGI-WRITEUP-002](writeups/NINGI-WRITEUP-002-cowrie-attack-patterns.md) - Cowrie SSH honeypot attack pattern analysis
 - [NINGI-WRITEUP-003](writeups/NINGI-WRITEUP-003-attack-surface-monitoring.md) - automated attack-surface monitoring
@@ -51,6 +53,8 @@ It is all based on a live environment. That includes a real compromise in March 
 ## Current Status
 
 The original nodes were decommissioned on 2026-03-22 after the compromise documented in [NINGI-WRITEUP-006](writeups/NINGI-WRITEUP-006-znc-webadmin-compromise-cryptominer.md). They have since been restored with a much more paranoid operating mindset.
+
+The rebuilt stack is now split across Argus, Fuji, and Margo-1 with clearer role separation, external visibility from Fuji, and a stronger assumption that every listener and every secret needs verification rather than trust.
 
 The main lesson that stuck is simple: I do not assume a service is only listening where I meant it to listen. After any service change, I check `ss -tnlp` and verify the real bind addresses before I trust the config.
 
