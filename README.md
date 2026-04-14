@@ -1,10 +1,8 @@
+# Troy | Homelab Security Research Portfolio
+
 ![ningi.dev banner](assets/ningi-header.svg)
 
-<p align="center">
-  <img src="assets/ningi-avatar.png" alt="ningi.dev logo" width="120" />
-</p>
-
-# Troy | Homelab Security Research Portfolio
+![NINGI logo: light blue ND letters in a geometric style, centered within concentric cyan circles on a dark navy background, with a small coral dot accent in the upper right](assets/ningi-avatar.png)
 
 This repo is a portfolio of the security work I built and ran in my homelab: detections, honeypot monitoring, attack-surface tracking, malware analysis, and incident response.
 
@@ -36,6 +34,7 @@ It is all based on a live environment. That includes a real compromise in March 
 
 ### Technical Writeups
 
+- [NINGI-WRITEUP-008](writeups/NINGI-WRITEUP-008-kamado-joe-api-reverse-engineering.md) - Kamado Joe Konnected — IoT API Reverse Engineering & Full Cloud Control - IoT security, mitmproxy, AWS IoT Core, MQTT, WPA2 capture, aircrack-ng
 - [NINGI-WRITEUP-007](writeups/NINGI-WRITEUP-007-what-i-rebuilt-after-the-znc-compromise.md) - what I rebuilt after the ZNC compromise
 - [NINGI-WRITEUP-001](writeups/NINGI-WRITEUP-001-honeytoken-detection.md) - honeytoken detection system
 - [NINGI-WRITEUP-002](writeups/NINGI-WRITEUP-002-cowrie-attack-patterns.md) - Cowrie SSH honeypot attack pattern analysis
