@@ -172,44 +172,80 @@ The MQTT connection runs on port 8883 (TLS). This was the most time-consuming ph
 | Router admin panel | Telstra Technicolor — no DNS logging, no DNS server config |
 | Full port scan of grill (nmap -p 1-65535) | All 65535 ports closed, no local interface exposed |
 
-**Approach that worked — WiFi monitor mode + WPA2 decryption:**
+**Approach that worked — NINGI-TRAP rogue AP + dnsmasq DNS logging:**
 
-```bash
-# Identify target network
-nmcli dev wifi list | grep <SSID>
-# 2.4GHz band: BSSID AA:BB:CC:DD:EE:FF, Channel 9
+Rather than decrypting captured WPA2 traffic, a cleaner approach was to provision a rogue AP (NINGI-TRAP) on argus's WiFi adapter (`wlp3s0`) and connect the grill to it directly. dnsmasq running on the AP logs all DNS queries in plaintext — no decryption needed.
 
-# Put adapter into monitor mode on target channel
-sudo airmon-ng check kill
-sudo airmon-ng start wlp3s0 9
-
-# Capture to pcap, filter by router BSSID
-sudo airodump-ng \
-  --bssid AA:BB:CC:DD:EE:FF \
-  --channel 9 \
-  --write ~/grill_capture \
-  --output-format pcap \
-  wlp3s0mon
-
-# Force grill to reconnect and perform fresh DNS lookup
-sudo aireplay-ng --deauth 3 -a AA:BB:CC:DD:EE:FF -c <grill_mac> wlp3s0mon
-
-# After capturing WPA handshake — decrypt with network PSK
-airdecap-ng -e "<SSID>" -p "<PSK>" ~/grill_capture-01.cap
-
-# Parse DNS queries from decrypted pcap
-tcpdump -r ~/grill_capture-01-dec.cap -n -v \
-  'udp port 53' 2>/dev/null | grep -E "A\? |AAAA\? "
 ```
+argus (eno1) — internet uplink
+    │  NAT / IP forwarding
+argus (wlp3s0) — AP mode
+    │  SSID: NINGI-TRAP
+    │  Gateway: 10.42.0.1
+    │  DHCP: 10.42.0.10–10.42.0.50
+    │  DNS server: 10.42.0.1 (dnsmasq, query logging enabled)
+    │
+Kamado Joe grill
+    IP: 10.42.0.19
+    Hostname: Konnec64b7Joe-
+```
+
+Grill was provisioned to join NINGI-TRAP via the Kamado Joe app. On boot, the grill performed a DNS query for its MQTT broker — captured in the dnsmasq log.
 
 **MQTT endpoint captured:**
 
 ```
 a386xm06thrxxr-ats.iot.us-east-2.amazonaws.com
-Resolved to: 3.133.4.23
+Resolved IP at time of capture: 3.133.4.23
 ```
 
 This is AWS IoT Core's ATS (Amazon Trust Services) endpoint for the Kamado Joe AWS account in `us-east-2`.
+
+**Lessons learned from NINGI-TRAP setup:**
+
+Several non-obvious issues encountered during setup, documented here for reproducibility.
+
+*iwlwifi driver / hostapd sequencing*
+
+The iwlwifi driver crashes if the interface type is pre-set to AP before hostapd starts. Always leave `wlp3s0` in managed/down state and let hostapd set the mode itself:
+
+```bash
+sudo ip link set wlp3s0 down
+sudo iw dev wlp3s0 set type managed
+sudo ip link set wlp3s0 down
+sudo systemctl start hostapd
+sudo ip addr add 10.42.0.1/24 dev wlp3s0
+```
+
+*IoT device WPA2 compatibility*
+
+The grill rejected the AP with a misleading "wrong password" error until hostapd was configured for maximum compatibility:
+
+```
+ieee80211n=0       # pure 802.11g — no HT
+wmm_enabled=0
+wpa_pairwise=CCMP TKIP   # TKIP fallback required
+```
+
+*UFW routed policy blocks NAT forwarding*
+
+UFW's default routed policy is `deny`. The iptables `MASQUERADE` rule alone is not enough — UFW drops forwarded packets before they reach it:
+
+```bash
+sudo ufw route allow in on wlp3s0 out on eno1
+```
+
+*dnsmasq must serve itself as the DNS server*
+
+dnsmasq must hand out `10.42.0.1` (itself) as the DNS server via DHCP — not `8.8.8.8` directly. If `8.8.8.8` is served, queries bypass the local log entirely:
+
+```
+--dhcp-option=6,10.42.0.1
+```
+
+*Grill requires working internet to stay on*
+
+The Kamado Joe Konnected controller shuts down if it cannot reach its MQTT server. The trap network must have full working internet (NAT + UFW route rule) or the grill powers off during capture.
 
 ---
 
