@@ -114,6 +114,16 @@ iOS App
         → Temporary AWS credentials (AccessKeyId, SecretKey, SessionToken, ~1 hour)
 ```
 
+**Key discovery notes:**
+
+| Finding | Detail |
+|---|---|
+| CAS client type | Okta (`0oag310cbuWhqCUx30h7`), not Cognito — CAS uses a separate Okta app client for its own auth |
+| KamadoJoe user pool | `us-east-2_Cay3H4aQI` — CAS handles user auth internally, no direct Cognito access available |
+| IoT credentials pool | `us-east-2_91Wt2hzCz` — app-embedded service account used by all users |
+| MQTT client ID | Must match `client_device_id` sent to policy endpoint, not the thing name |
+| Cognito auth method | App uses SRP (`USER_SRP_AUTH`); script uses `REFRESH_TOKEN_AUTH` to avoid needing the service account password |
+
 **Key finding:** The Cognito credentials in Stage 2 belong to `raul+certificates@weareenvoy.com` — a service account owned by Weareenvoy, the software contractor that built the Konnected Joe backend. These credentials are **embedded in the iOS app binary and shared across all Konnected Joe users**. Every installation of the app authenticates using the same service account.
 
 The IAM role attached to the resulting identity allows only `iot:CreateKeysAndCertificate`. Attempts to call `iot:DescribeEndpoint`, `iot:ListThings`, or `iot:Publish` directly all return `AccessDenied`.
@@ -286,7 +296,25 @@ python3 ~/kamado_mqtt.py set <temp>   # set target temperature in Celsius
 
 Dependencies: `pip install boto3 requests paho-mqtt pycognito --break-system-packages`
 
-Credentials in `~/.config/kamado/auth.json`. Session cached in `~/.config/kamado/session.json` and refreshed automatically on expiry.
+Credentials in `~/.config/kamado/auth.json`:
+
+```json
+{
+  "username": "your@email.com",
+  "password": "yourpassword",
+  "cognito_refresh_token": "<captured from mitmproxy — see below>"
+}
+```
+
+Session cached in `~/.config/kamado/session.json` and refreshed automatically. The CAS bearer and AWS credentials are valid for ~1 hour and re-obtained transparently on expiry.
+
+**Cognito refresh token** lasts approximately 30 days. When it expires, capture a fresh one via mitmproxy:
+
+1. Configure iPhone to proxy through mitmproxy
+2. Log out and back in to the Kamado Joe app
+3. Look for `POST cognito-idp.us-east-2.amazonaws.com` with target `RespondToAuthChallenge`
+4. Copy the `RefreshToken` value from the response body
+5. Update `cognito_refresh_token` in `~/.config/kamado/auth.json`
 
 ---
 
