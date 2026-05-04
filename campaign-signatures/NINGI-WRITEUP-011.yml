@@ -1,0 +1,14 @@
+campaign: NINGI-WRITEUP-011
+description: mdrfckr SSH key injection with hardware/container fingerprint probe; libssh_0.12.0 scanner; same key as NINGI-004
+block_days: 30
+patterns:
+  - match: "mdrfckr"
+  - match: "lockr -ia .ssh"
+  - match: "y6ekwUbyoOkk"
+  - match: "ls -lh $(which ls)"
+  - match: "AAAAB3NzaC1yc2EAAAABJQAAAQEArDp4"
+source_ips:
+  - 122.175.36.92    # recon node (India)
+  - 180.93.137.63    # spread node (India/BSNL)
+  - 4.213.160.153    # spread node (Azure)
+  - 180.252.199.166  # spread node (Indonesia/Telkom)

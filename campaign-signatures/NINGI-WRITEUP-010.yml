@@ -1,0 +1,11 @@
+campaign: NINGI-WRITEUP-010
+description: Tor-routed Go SSH scanner performing container/VM fingerprinting via /proc/1/; nanosecond beacon token for session correlation
+block_days: 30
+patterns:
+  - match: "ls /proc/1/"
+  - match: "cat /proc/1/mounts"
+  - match: "cat /proc/cpuinfo"
+  - match: "echo __\\d{15,20}"
+source_ips:
+  - 185.220.101.148   # Tor exit node, torservers.net /26
+  - 185.220.101.179   # Tor exit node, torservers.net /26

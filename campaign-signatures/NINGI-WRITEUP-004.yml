@@ -1,0 +1,11 @@
+campaign: NINGI-WRITEUP-004
+description: Mirai mdrfckr SSH key injection & multi-arch dropper campaign
+block_days: 30
+patterns:
+  - match: "mdrfckr"
+  - match: "AAAAB3NzaC1yc2EAAAABJQAAAQEArDp4"
+  - match: "chattr -ia .ssh"
+  - match: "rm -rf .ssh && mkdir .ssh"
+  - match: "pkill iptables -9"
+  - match: "sshbins.sh"
+  - match: "tux.x86"
