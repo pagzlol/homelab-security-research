@@ -1,0 +1,16 @@
+campaign: NINGI-WRITEUP-009
+description: Redtail SFTP-delivered multi-arch cryptominer with rsa-key-20230629 SSH backdoor
+block_days: 90
+patterns:
+  - match: "rsa-key-20230629"
+  - match: "CqHrvnL6l7rT"
+  - match: "chattr +ai.*authorized_keys"
+  - match: "redtail.arm"
+  - match: "redtail.x86"
+  - match: "redtail.i686"
+  - match: "\\x61\\x75\\x74\\x68\\x5F\\x6F\\x6B"
+  - match: "sh clean.sh.*rm -rf clean.sh"
+  - match: "auth_ok"
+source_ips:
+  - 130.12.180.51   # delivery node
+  - 172.245.16.13   # probe/scanner node
