@@ -12,3 +12,6 @@ source_ips:
   - 180.93.137.63    # spread node (India/BSNL)
   - 4.213.160.153    # spread node (Azure)
   - 180.252.199.166  # spread node (Indonesia/Telkom)
+  - 161.49.89.39     # spread node (Philippines) — 2026-05-05
+  - 189.203.163.10   # spread node (Mexico) — 2026-05-05
+  - 43.153.104.156   # spread node (Tencent Cloud) — 2026-05-05
