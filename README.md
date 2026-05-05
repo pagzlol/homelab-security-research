@@ -42,6 +42,7 @@ It is all based on a live environment. That includes a real compromise in March 
 - [NINGI-WRITEUP-004](writeups/NINGI-WRITEUP-004-mirai-dropper-ssh-persistence.md) - Mirai dropper and SSH persistence analysis
 - [NINGI-WRITEUP-005](writeups/NINGI-WRITEUP-005-irc-botnet-worm-analysis.md) - IRC botnet worm source and behaviour analysis
 - [NINGI-WRITEUP-006](writeups/NINGI-WRITEUP-006-znc-webadmin-compromise-cryptominer.md) - ZNC webadmin compromise and cryptominer deployment
+- [NINGI-WRITEUP-009](writeups/NINGI-WRITEUP-009-krane-botnet-go-cryptominer.md) - krane botnet — Go-compiled SSH spreader and Monero cryptominer with Romanian author attribution ([IOCs](writeups/NINGI-WRITEUP-009-krane-botnet-iocs.md))
 
 ### Tooling
 
