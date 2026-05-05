@@ -9,7 +9,7 @@
 | **Severity** | Medium (SSH backdoor installed; hardware probe for staging) |
 | **Related Campaign** | NINGI-WRITEUP-004 (same `mdrfckr` SSH key) |
 | **Primary Session** | `18c1a75a934a` (122.175.36.92) |
-| **Spread Sessions** | 4.213.160.153, 180.93.137.63, 180.252.199.166 |
+| **Spread Sessions** | 4.213.160.153, 180.93.137.63, 180.252.199.166 (wave 1); 161.49.89.39, 189.203.163.10, 43.153.104.156 (wave 2 — 2026-05-05) |
 
 ---
 
@@ -105,12 +105,26 @@ All spread sessions use the same HASSH (`af8223ac9914f509afdadfaf5f7ee94e`) and 
 
 The step-2 "connectivity check" session is consistent across all spread IPs and is a reliable signature of this toolset.
 
+**Wave 1 — ~02:00–02:15 UTC**
+
 | Session | Source IP | Geo | Time (UTC) | Type |
 |---------|-----------|-----|------------|------|
 | `4d9e7eecfcf7` | 4.213.160.153 | Azure (US) | 02:15:11 | Spread |
 | `76f0b49e9a5f` | 180.93.137.63 | India/BSNL | 02:15:14 | Spread |
 | `83b8a00e781b` | 180.252.199.166 | Indonesia/Telkom | 02:00:01 | Spread |
 | `a99468768a5c` | 122.175.36.92 | India | 02:12:13 | Recon node, now spreading |
+
+**Wave 2 — ~04:16–08:54 UTC (infrastructure rotation)**
+
+The wave 1 nodes went silent. A second spread wave arrived ~2 hours later using identical tooling — same HASSH (`af8223ac9914f509afdadfaf5f7ee94e`), same `libssh_0.12.0` client, same two-command payload, same RSA key — but entirely new source infrastructure. The wave 1 nodes have not been observed since.
+
+| Source IP | Geo | Activity | Type |
+|-----------|-----|----------|------|
+| 161.49.89.39 | Philippines | ~14 successful sessions, 04:16–04:54 UTC | Spread (most active) |
+| 189.203.163.10 | Mexico | 2 sessions, 04:47 UTC | Spread |
+| 43.153.104.156 | Tencent Cloud | 2 sessions, 04:16 UTC | Spread |
+
+`161.49.89.39` was the most active node, running the triplet pattern (~14 login triplets in under 40 minutes). The tooling and key are byte-for-byte identical to wave 1, consistent with the same operator rotating infrastructure rather than a different actor reusing the key.
 
 ---
 
@@ -223,9 +237,12 @@ The three-attempt credential sequence (`345gs5662d34` fail → `root:3245gs5662d
 | IP | Role | Geo | Notes |
 |----|------|-----|-------|
 | 122.175.36.92 | Recon node | India | Ran full 19-command fingerprint |
-| 180.93.137.63 | Spread node | India/BSNL | Standard key injection |
-| 4.213.160.153 | Spread node | Microsoft Azure (US) | Cloud-hosted spread node |
-| 180.252.199.166 | Spread node | Indonesia/Telkom | Standard key injection |
+| 180.93.137.63 | Spread node (wave 1) | India/BSNL | Standard key injection |
+| 4.213.160.153 | Spread node (wave 1) | Microsoft Azure (US) | Cloud-hosted spread node |
+| 180.252.199.166 | Spread node (wave 1) | Indonesia/Telkom | Standard key injection |
+| 161.49.89.39 | Spread node (wave 2) | Philippines | ~14 sessions; most active wave 2 node |
+| 189.203.163.10 | Spread node (wave 2) | Mexico | 2 sessions |
+| 43.153.104.156 | Spread node (wave 2) | Tencent Cloud | 2 sessions |
 
 ### SSH Fingerprint
 
