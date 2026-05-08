@@ -4,14 +4,22 @@ block_days: 30
 patterns:
   - match: "mdrfckr"
   - match: "lockr -ia .ssh"
-  - match: "y6ekwUbyoOkk"
+  - match: "y6ekwUbyoOkk"          # wave 1/2 root password
+  - match: "VOZ7sFFboXBj"          # wave 3 root password (2026-05-03–08)
   - match: "ls -lh $(which ls)"
   - match: "AAAAB3NzaC1yc2EAAAABJQAAAQEArDp4"
+  - match: "libssh_0.11.1"         # wave 3 alternate client (wave 1/2 used 0.12.0)
 source_ips:
   - 122.175.36.92    # recon node (India)
   - 180.93.137.63    # spread node (India/BSNL)
   - 4.213.160.153    # spread node (Azure)
   - 180.252.199.166  # spread node (Indonesia/Telkom)
-  - 161.49.89.39     # spread node (Philippines) — 2026-05-05
-  - 189.203.163.10   # spread node (Mexico) — 2026-05-05
-  - 43.153.104.156   # spread node (Tencent Cloud) — 2026-05-05
+  - 161.49.89.39     # spread node (Philippines) — wave 2, 2026-05-05
+  - 189.203.163.10   # spread node (Mexico) — wave 2, 2026-05-05
+  - 43.153.104.156   # spread node (Tencent Cloud) — wave 2, 2026-05-05
+  - 111.68.98.152    # spread node (Pakistan) — wave 3, 2026-05-03–08; libssh_0.11.1; password VOZ7sFFboXBj
+  - 170.79.37.84     # spread node (Brazil) — wave 3, 2026-05-03–08
+  - 177.43.90.107    # spread node (Brazil) — wave 3, 2026-05-03–08
+  - 45.232.73.84     # spread node (Brazil/LatAm) — wave 3, 2026-05-03–08
+  - 113.161.222.150  # spread node (Vietnam) — wave 3, 2026-05-03–08
+  - 120.48.175.122   # spread node (China) — wave 3, 2026-05-08; libssh_0.11.1; confirmed password VOZ7sFFboXBj

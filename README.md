@@ -31,6 +31,7 @@ It is all based on a live environment. That includes a real compromise in March 
 - [NINGI-2026-001](security-findings/NINGI-2026-001-siem-log-injection.md) - SIEM log injection via IPv6 UDP syslog
 - [NINGI-2026-002](security-findings/NINGI-2026-002-ssh-tunnel-relay-c2.md) - SSH tunnel relay abuse and CDN-fronted C2 beaconing
 - [NINGI-2026-003](security-findings/NINGI-2026-003-znc-ipv6-exposure.md) - ZNC webadmin IPv6 exposure that led to the March 2026 compromise
+- [NINGI-2026-004](security-findings/NINGI-2026-004-ssh-dns-tunnel-via-direct-tcpip.md) - SSH direct-tcpip abused as DNS exit proxy; no-shell tunnel to 1.1.1.1:53
 
 ### Technical Writeups
 
@@ -43,6 +44,9 @@ It is all based on a live environment. That includes a real compromise in March 
 - [NINGI-WRITEUP-005](writeups/NINGI-WRITEUP-005-irc-botnet-worm-analysis.md) - IRC botnet worm source and behaviour analysis
 - [NINGI-WRITEUP-006](writeups/NINGI-WRITEUP-006-znc-webadmin-compromise-cryptominer.md) - ZNC webadmin compromise and cryptominer deployment
 - [NINGI-WRITEUP-009](writeups/NINGI-WRITEUP-009-krane-botnet-go-cryptominer.md) - krane botnet — Go-compiled SSH spreader and Monero cryptominer with Romanian author attribution ([IOCs](writeups/NINGI-WRITEUP-009-krane-botnet-iocs.md))
+- [NINGI-WRITEUP-010](writeups/NINGI-WRITEUP-010-tor-container-fingerprint-probe.md) - Tor-routed Go scanner performing container/VM fingerprinting via `/proc/1/` with nanosecond session correlation tokens
+- [NINGI-WRITEUP-011](writeups/NINGI-WRITEUP-011-mdrfckr-hardware-probe.md) - mdrfckr SSH key injection with extended hardware probe, competitor displacement, and multi-wave infrastructure rotation
+- [NINGI-WRITEUP-012](writeups/NINGI-WRITEUP-012-go-dual-branch-scanner-solana-targeting.md) - Go dual-branch capability scanner; base64 probe + `/bin/./uname` arch collection; Solana validator credential targeting
 
 ### Tooling
 

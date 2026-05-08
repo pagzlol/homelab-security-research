@@ -1,0 +1,10 @@
+campaign: NINGI-WRITEUP-012
+description: Go dual-branch scanner; base64 capability probe (176.125.224.179) + /bin/./uname arch probe with Solana validator credential targeting (193.32.162.145); shared HASSH, no payload
+block_days: 30
+patterns:
+  - match: "echo 'dGVzdA==' | base64 -d 2>/dev/null"
+  - match: "/bin/./uname"
+  - match: "16443846184eafde36765c9bab2f4397"
+source_ips:
+  - 176.125.224.179   # Branch A — base64 probe
+  - 193.32.162.145    # Branch B — uname probe + Solana credential targeting
