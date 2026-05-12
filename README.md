@@ -4,8 +4,6 @@
 
 ![NINGI logo: light blue ND letters in a geometric style, centered within concentric cyan circles on a dark navy background, with a small coral dot accent in the upper right](assets/ningi-avatar.png)
 
-Public site: [ningi.dev](https://ningi.dev)
-
 This repo shows the security work I built and ran in my homelab: detections, honeypot monitoring, attack surface checks, malware notes, and incident response.
 
 It is all based on a live environment. That includes a real compromise in March 2026 that I investigated and documented in full. I left that in because I want this repo to show how I actually work, not just the clean wins.
