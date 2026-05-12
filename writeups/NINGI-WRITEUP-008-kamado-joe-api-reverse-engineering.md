@@ -1,15 +1,15 @@
-# Kamado Joe Konnected — IoT API Reverse Engineering & Full Cloud Control
+# Kamado Joe Konnected: IoT API Reverse Engineering & Full Cloud Control
 
-**Document ID:** NINGI-WRITEUP-007  
-**Date:** 2026-04-13 / 2026-04-14  
-**Category:** IoT Security Research / API Reverse Engineering  
-**Environment:** ningi homelab — argus + iPhone (mitmproxy) + Kamado Joe Konnected grill
+**Document ID:** NINGI-WRITEUP-007
+**Date:** 2026-04-13 / 2026-04-14
+**Category:** IoT Security Research / API Reverse Engineering
+**Environment:** ningi homelab: argus + iPhone (mitmproxy) + Kamado Joe Konnected grill
 
 ---
 
 ## Overview
 
-The Kamado Joe Konnected grill controller connects to a cloud backend for temperature monitoring and control via the official iOS app. This writeup documents a full reverse engineering of that communication chain — intercepting HTTP traffic with mitmproxy, reconstructing the three-stage authentication flow, discovering the AWS IoT MQTT endpoint via WiFi packet capture, and building a working command-line tool to control the grill independently of the official app.
+The Kamado Joe Konnected grill controller connects to a cloud backend for temperature monitoring and control via the official iOS app. This writeup documents a full reverse engineering of that communication chain: intercepting HTTP traffic with mitmproxy, reconstructing the three-stage authentication flow, discovering the AWS IoT MQTT endpoint via WiFi packet capture, and building a working command-line tool to control the grill independently of the official app.
 
 **End result:** A self-contained Python script (`kamado_mqtt.py`) that authenticates, connects to AWS IoT Core over MQTT, and sets grill temperature from the command line.
 
@@ -38,7 +38,7 @@ python3 ~/kamado_mqtt.py set 160
 
 ## Methodology
 
-### Phase 1 — HTTP Traffic Interception
+### Phase 1: HTTP Traffic Interception
 
 Configured mitmproxy on argus and proxied iPhone traffic through it. Installed the mitmproxy CA certificate on iPhone to enable TLS interception. Opened the Kamado Joe app and performed normal operations to observe all outbound traffic.
 
@@ -46,14 +46,14 @@ Configured mitmproxy on argus and proxied iPhone traffic through it. Installed t
 
 | Endpoint | Purpose |
 |---|---|
-| `cas.kamadojoe.com/api/v1/` | REST API — device state reads (read-only) |
+| `cas.kamadojoe.com/api/v1/` | REST API: device state reads (read-only) |
 | `cognito-idp.us-east-2.amazonaws.com` | Cognito User Pool authentication |
 | `cognito-identity.us-east-2.amazonaws.com` | Identity Pool → temporary AWS credentials |
 | `iot.us-east-2.amazonaws.com` | AWS IoT certificate creation |
 | `masterbuiltaws-production.6k9fbw6cvt.us-west-2.elasticbeanstalk.com` | IoT policy registration |
 | `jxsqbqt52vedde7k6nl2moh7cm.appsync-api.us-west-2.amazonaws.com` | AppSync GraphQL (recipes only, not control) |
 
-The CAS REST API returns rich shadow data on GET requests but returns 404 on all write operations. All temperature control is handled exclusively through AWS IoT MQTT — the REST API is read-only.
+The CAS REST API returns rich shadow data on GET requests but returns 404 on all write operations. All temperature control is handled exclusively through AWS IoT MQTT: the REST API is read-only.
 
 **Device shadow data structure decoded:**
 
@@ -86,7 +86,7 @@ Shadow snapshots update approximately every 7 seconds. Note that `ssid` (home Wi
 
 ---
 
-### Phase 2 — Authentication Chain Reconstruction
+### Phase 2: Authentication Chain Reconstruction
 
 The app uses a three-stage chain to obtain temporary AWS credentials for IoT access.
 
@@ -118,19 +118,19 @@ iOS App
 
 | Finding | Detail |
 |---|---|
-| CAS client type | Okta (`0oag310cbuWhqCUx30h7`), not Cognito — CAS uses a separate Okta app client for its own auth |
-| KamadoJoe user pool | `us-east-2_Cay3H4aQI` — CAS handles user auth internally, no direct Cognito access available |
-| IoT credentials pool | `us-east-2_91Wt2hzCz` — app-embedded service account used by all users |
+| CAS client type | Okta (`0oag310cbuWhqCUx30h7`), not Cognito: CAS uses a separate Okta app client for its own auth |
+| KamadoJoe user pool | `us-east-2_Cay3H4aQI`: CAS handles user auth internally, no direct Cognito access available |
+| IoT credentials pool | `us-east-2_91Wt2hzCz`: app-embedded service account used by all users |
 | MQTT client ID | Must match `client_device_id` sent to policy endpoint, not the thing name |
 | Cognito auth method | App uses SRP (`USER_SRP_AUTH`); script uses `REFRESH_TOKEN_AUTH` to avoid needing the service account password |
 
-**Key finding:** The Cognito credentials in Stage 2 belong to `raul+certificates@weareenvoy.com` — a service account owned by Weareenvoy, the software contractor that built the Konnected Joe backend. These credentials are **embedded in the iOS app binary and shared across all Konnected Joe users**. Every installation of the app authenticates using the same service account.
+**Key finding:** The Cognito credentials in Stage 2 belong to `raul+certificates@weareenvoy.com`: a service account owned by Weareenvoy, the software contractor that built the Konnected Joe backend. These credentials are **embedded in the iOS app binary and shared across all Konnected Joe users**. Every installation of the app authenticates using the same service account.
 
 The IAM role attached to the resulting identity allows only `iot:CreateKeysAndCertificate`. Attempts to call `iot:DescribeEndpoint`, `iot:ListThings`, or `iot:Publish` directly all return `AccessDenied`.
 
 ---
 
-### Phase 3 — IoT Certificate Provisioning
+### Phase 3: IoT Certificate Provisioning
 
 With temporary AWS credentials, the app dynamically creates a fresh IoT certificate:
 
@@ -157,9 +157,9 @@ Note: this policy registration endpoint uses **plain HTTP**, not HTTPS. Certific
 
 ---
 
-### Phase 4 — MQTT Endpoint Discovery
+### Phase 4: MQTT Endpoint Discovery
 
-The MQTT connection runs on port 8883 (TLS). This was the most time-consuming phase — the grill connects directly over WiFi to AWS IoT Core, and standard interception approaches failed:
+The MQTT connection runs on port 8883 (TLS). This was the most time-consuming phase: the grill connects directly over WiFi to AWS IoT Core, and standard interception approaches failed:
 
 **Approaches that failed:**
 
@@ -167,19 +167,19 @@ The MQTT connection runs on port 8883 (TLS). This was the most time-consuming ph
 |---|---|
 | mitmproxy | Only intercepts HTTP/HTTPS, not raw TLS on port 8883 |
 | tcpdump on argus eno1 | Grill on WiFi, traffic never crosses Ethernet segment |
-| ARP spoofing from argus | Same reason — eno1 not in grill's broadcast domain |
+| ARP spoofing from argus | Same reason: eno1 not in grill's broadcast domain |
 | Wireshark on Windows laptop | Captured phone proxy traffic (port 8080), not grill traffic |
-| Router admin panel | Telstra Technicolor — no DNS logging, no DNS server config |
+| Router admin panel | Telstra Technicolor: no DNS logging, no DNS server config |
 | Full port scan of grill (nmap -p 1-65535) | All 65535 ports closed, no local interface exposed |
 
-**Approach that worked — NINGI-TRAP rogue AP + dnsmasq DNS logging:**
+**Approach that worked: NINGI-TRAP rogue AP + dnsmasq DNS logging:**
 
-Rather than decrypting captured WPA2 traffic, a cleaner approach was to provision a rogue AP (NINGI-TRAP) on argus's WiFi adapter (`wlp3s0`) and connect the grill to it directly. dnsmasq running on the AP logs all DNS queries in plaintext — no decryption needed.
+Rather than decrypting captured WPA2 traffic, a cleaner approach was to provision a rogue AP (NINGI-TRAP) on argus's WiFi adapter (`wlp3s0`) and connect the grill to it directly. dnsmasq running on the AP logs all DNS queries in plaintext: no decryption needed.
 
 ```
-argus (eno1) — internet uplink
+argus (eno1): internet uplink
     │  NAT / IP forwarding
-argus (wlp3s0) — AP mode
+argus (wlp3s0): AP mode
     │  SSID: NINGI-TRAP
     │  Gateway: 10.42.0.1
     │  DHCP: 10.42.0.10–10.42.0.50
@@ -190,7 +190,7 @@ Kamado Joe grill
     Hostname: Konnec64b7Joe-
 ```
 
-Grill was provisioned to join NINGI-TRAP via the Kamado Joe app. On boot, the grill performed a DNS query for its MQTT broker — captured in the dnsmasq log.
+Grill was provisioned to join NINGI-TRAP via the Kamado Joe app. On boot, the grill performed a DNS query for its MQTT broker: captured in the dnsmasq log.
 
 **MQTT endpoint captured:**
 
@@ -222,14 +222,14 @@ sudo ip addr add 10.42.0.1/24 dev wlp3s0
 The grill rejected the AP with a misleading "wrong password" error until hostapd was configured for maximum compatibility:
 
 ```
-ieee80211n=0       # pure 802.11g — no HT
+ieee80211n=0       # pure 802.11g: no HT
 wmm_enabled=0
 wpa_pairwise=CCMP TKIP   # TKIP fallback required
 ```
 
 *UFW routed policy blocks NAT forwarding*
 
-UFW's default routed policy is `deny`. The iptables `MASQUERADE` rule alone is not enough — UFW drops forwarded packets before they reach it:
+UFW's default routed policy is `deny`. The iptables `MASQUERADE` rule alone is not enough: UFW drops forwarded packets before they reach it:
 
 ```bash
 sudo ufw route allow in on wlp3s0 out on eno1
@@ -237,7 +237,7 @@ sudo ufw route allow in on wlp3s0 out on eno1
 
 *dnsmasq must serve itself as the DNS server*
 
-dnsmasq must hand out `10.42.0.1` (itself) as the DNS server via DHCP — not `8.8.8.8` directly. If `8.8.8.8` is served, queries bypass the local log entirely:
+dnsmasq must hand out `10.42.0.1` (itself) as the DNS server via DHCP: not `8.8.8.8` directly. If `8.8.8.8` is served, queries bypass the local log entirely:
 
 ```
 --dhcp-option=6,10.42.0.1
@@ -249,7 +249,7 @@ The Kamado Joe Konnected controller shuts down if it cannot reach its MQTT serve
 
 ---
 
-### Phase 5 — Full MQTT Control
+### Phase 5: Full MQTT Control
 
 With the endpoint confirmed, temperature control is achieved by publishing to the AWS IoT device shadow:
 
@@ -258,7 +258,7 @@ Topic:   $aws/things/d64ba1f8a150ff649084a094e519b62e/shadow/update
 Payload: {"state": {"desired": {"heat": {"t2": {"trgt": 160}}}}}
 ```
 
-The grill responds within seconds — the fan and heating element adjust to reach the target. The result is confirmed by re-reading state via the CAS REST API.
+The grill responds within seconds: the fan and heating element adjust to reach the target. The result is confirmed by re-reading state via the CAS REST API.
 
 **Verified working:**
 
@@ -280,27 +280,27 @@ Temp: 25°C | Target: 90°C | Fan: 100%
 
 ## Security Findings
 
-### Finding 1 — App-Embedded Shared Service Account Credentials
+### Finding 1: App-Embedded Shared Service Account Credentials
 
 **Severity:** Medium
 
-The Cognito service account credentials used to obtain AWS IoT access — User Pool ID, App Client ID, Client Secret, and Refresh Token — are embedded in the iOS app binary and used by all Konnected Joe users. Any user who intercepts their own app traffic (as demonstrated here) can extract these credentials.
+The Cognito service account credentials used to obtain AWS IoT access: User Pool ID, App Client ID, Client Secret, and Refresh Token: are embedded in the iOS app binary and used by all Konnected Joe users. Any user who intercepts their own app traffic (as demonstrated here) can extract these credentials.
 
 The IAM role is scoped narrowly to `iot:CreateKeysAndCertificate`, which limits direct damage. However, a malicious actor could use extracted credentials to provision an unlimited number of valid IoT certificates within Kamado Joe's AWS account.
 
 **Remediation:** Per-device certificate provisioning via a server-side provisioning API that authenticates the user before issuing credentials, rather than embedding shared service account credentials in the app binary.
 
-### Finding 2 — IoT Policy Scope Unknown (Potential Cross-User Data Access)
+### Finding 2: IoT Policy Scope Unknown (Potential Cross-User Data Access)
 
 **Severity:** Potentially High (uninvestigated)
 
-The policy registered via the Masterbuilt backend attaches an AWS IoT policy to each provisioned certificate. The scope of that policy — specifically whether it restricts MQTT operations to the user's own thing name — was not fully investigated.
+The policy registered via the Masterbuilt backend attaches an AWS IoT policy to each provisioned certificate. The scope of that policy: specifically whether it restricts MQTT operations to the user's own thing name: was not fully investigated.
 
-If the policy is overly permissive, a provisioned certificate could potentially subscribe to MQTT topics for other customers' grills, receiving real-time temperature data, cook sessions, and device events for grills they do not own.
+If the policy is overly permissive, a provisioned certificate could potentially subscribe to MQTT topics for other customers' grills, receiving real time temperature data, cook sessions, and device events for grills they do not own.
 
 **Recommended follow-up:** Attempt to subscribe to a known-different thing's shadow topic using a self-provisioned certificate and observe whether the broker accepts or rejects the subscription.
 
-### Finding 3 — Cook Session Data Exposure
+### Finding 3: Cook Session Data Exposure
 
 **Severity:** Low (authenticated)
 
@@ -308,7 +308,7 @@ The CAS REST API returns detailed cook session data for any device MAC address s
 
 The API does not appear to validate that the requesting user owns the device being queried. A user who knows another device's MAC address could read its full cook history.
 
-### Finding 4 — Policy Registration Endpoint Uses Plain HTTP
+### Finding 4: Policy Registration Endpoint Uses Plain HTTP
 
 **Severity:** Low
 
@@ -338,7 +338,7 @@ Credentials in `~/.config/kamado/auth.json`:
 {
   "username": "your@email.com",
   "password": "yourpassword",
-  "cognito_refresh_token": "<captured from mitmproxy — see below>"
+  "cognito_refresh_token": "<captured from mitmproxy: see below>"
 }
 ```
 
@@ -368,18 +368,18 @@ Session cached in `~/.config/kamado/session.json` and refreshed automatically. T
 
 ## Key Takeaways
 
-* **CAS REST API is read-only** — all write operations including temperature control go through AWS IoT MQTT. The REST API is useful for monitoring but useless for control.
-* **The MQTT connection is grill-to-cloud, not phone-to-cloud** — the phone only polls the REST API. This means mitmproxy on the phone never sees port 8883 traffic.
+* **CAS REST API is read-only**: all write operations including temperature control go through AWS IoT MQTT. The REST API is useful for monitoring but useless for control.
+* **The MQTT connection is grill-to-cloud, not phone-to-cloud**: the phone only polls the REST API. This means mitmproxy on the phone never sees port 8883 traffic.
 * **WiFi monitor mode + airdecap-ng is the right tool** for capturing traffic from devices you own when your monitoring host is on a different network segment.
-* **App-embedded shared credentials are a common IoT pattern** — and a common weakness. The narrow IAM policy scope limits risk, but the principle of least privilege should extend to provisioning flows too.
-* **All 65535 ports closed on the grill** — the device exposes no local management interface. Everything goes through the cloud. This is good from an attack surface perspective but bad for local-only control.
+* **App-embedded shared credentials are a common IoT pattern**: and a common weakness. The narrow IAM policy scope limits risk, but the principle of least privilege should extend to provisioning flows too.
+* **All 65535 ports closed on the grill**: the device exposes no local management interface. Everything goes through the cloud. This is good from an attack surface perspective but bad for local-only control.
 
 ---
 
 ## References
 
 - Weareenvoy (IoT backend contractor): `weareenvoy.com`
-- AWS IoT Developer Guide — Device Shadows: `docs.aws.amazon.com/iot/latest/developerguide/device-shadow-document.html`
+- AWS IoT Developer Guide: Device Shadows: `docs.aws.amazon.com/iot/latest/developerguide/device-shadow-document.html`
 - mitmproxy documentation: `docs.mitmproxy.org`
 - aircrack-ng suite: `aircrack-ng.org`
 - paho-mqtt Python client: `eclipse.dev/paho/index.php?page=clients/python/index.php`

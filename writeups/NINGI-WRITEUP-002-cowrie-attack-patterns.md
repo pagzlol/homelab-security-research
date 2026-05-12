@@ -1,17 +1,17 @@
-# Cowrie SSH Honeypot — Attack Pattern Analysis
+# Cowrie SSH Honeypot: Attack Pattern Analysis
 
 **Document ID:** NINGI-WRITEUP-002
 **Date:** 2026-03-10
 **Category:** Threat Intelligence / Honeypot Analysis
-**Environment:** fuji-mailbox VPS — Cowrie 2.x / Wazuh 4.14.0
+**Environment:** fuji-mailbox VPS: Cowrie 2.x / Wazuh 4.14.0
 
 ---
 
 ## Overview
 
-This writeup analyses real attack traffic I captured with a Cowrie SSH honeypot running on a public-facing VPS (BinaryLane, Queensland, Australia). The honeypot runs on port 22 with no banner modification, so it presents as a standard OpenSSH server. All login attempts and commands shown here came from real attackers on the public internet.
+This writeup analyses real attack traffic I captured with a Cowrie SSH honeypot running on a public facing VPS (BinaryLane, Queensland, Australia). The honeypot runs on port 22 with no banner modification, so it presents as a standard OpenSSH server. All login attempts and commands shown here came from real attackers on the public internet.
 
-Cowrie logs all attacker activity including credentials attempted, commands run, and files downloaded — without the attacker's knowledge that they are inside a sandboxed environment.
+Cowrie logs all attacker activity including credentials attempted, commands run, and files downloaded: without the attacker's knowledge that they are inside a sandboxed environment.
 
 ---
 
@@ -21,7 +21,7 @@ Login attempt frequency over the observation period:
 
 | Rank | IP Address | Attempts | Notes |
 |---|---|---|---|
-| 1 | `209.38.226.254` | 247 | DigitalOcean — high volume credential spray |
+| 1 | `209.38.226.254` | 247 | DigitalOcean: high volume credential spray |
 | 2 | `213.209.159.159` | 39 | |
 | 3 | `2.57.121.25` | 35 | |
 | 4 | `64.225.70.34` | 29 | DigitalOcean |
@@ -32,15 +32,15 @@ Login attempt frequency over the observation period:
 | 9 | `134.209.31.148` | 18 | |
 | 10 | `165.22.194.104` | 18 | DigitalOcean |
 
-**Observation:** 5 of the top 10 attacking IPs resolve to DigitalOcean ASN (AS14061). This is consistent with the well-documented pattern of attackers renting cheap cloud VMs to conduct credential spraying campaigns — cloud IPs are not blocked by default and have high outbound bandwidth.
+**Observation:** 5 of the top 10 attacking IPs resolve to DigitalOcean ASN (AS14061). This matches a common pattern: attackers rent cheap cloud VMs for credential spraying because cloud IPs are not blocked by default and have good outbound bandwidth.
 
 ---
 
 ## Attack Patterns
 
-### Pattern 1 — Automated Credential Spray (Most Common)
+### Pattern 1: Automated Credential Spray (Most Common)
 
-The most common pattern is a fully automated credential spray with no post-login activity. The attacker logs in, verifies the connection works, then disconnects — the actual exploitation is handled separately once valid credentials are harvested.
+The most common pattern is a fully automated credential spray with no post-login activity. The attacker logs in, verifies the connection works, then disconnects: the actual exploitation is handled separately once valid credentials are harvested.
 
 **Characteristics:**
 - Login attempt followed immediately by disconnect
@@ -57,11 +57,11 @@ cowrie.session.closed  duration="2.9"
 **Credential patterns observed:**
 - Default credentials: `root/root`, `root/123456`, `admin/admin`, `admin/password`
 - Common usernames: `root`, `admin`, `ubuntu`, `user`, `test`, `oracle`, `postgres`
-- Chinese usernames appearing in spray lists (e.g. `fangdaohong`) — suggests credential lists sourced from previous breaches of Chinese-language services
+- Chinese usernames appearing in spray lists (e.g. `fangdaohong`): suggests credential lists sourced from previous breaches of Chinese-language services
 
 ---
 
-### Pattern 2 — Architecture Fingerprinting (Automated Botnet)
+### Pattern 2: Architecture Fingerprinting (Automated Botnet)
 
 A distinct cluster of IPs all run an identical command sequence immediately after login. This is a botnet dropper performing system reconnaissance before deploying a payload suited to the target architecture.
 
@@ -86,15 +86,15 @@ uname -s -v -n -m 2>/dev/null
 - `uname -s -v -n -m` returns: OS type, kernel version, hostname, and machine architecture
 - Results are used to select the correct binary variant to download (x86_64, ARM, MIPS, etc.)
 - 12+ different IPs running the **exact same command sequence** confirms this is a single botnet campaign operating across multiple cloud-rented nodes
-- All IPs resolve to DigitalOcean — strongly suggests a coordinated campaign using rented infrastructure
+- All IPs resolve to DigitalOcean: strongly suggests a coordinated campaign using rented infrastructure
 
-**MITRE ATT&CK:** T1082 — System Information Discovery
+**MITRE ATT&CK:** T1082: System Information Discovery
 
 ---
 
-### Pattern 3 — Backdoor Dropper with Process Masquerading
+### Pattern 3: Backdoor Dropper with Process Masquerading
 
-The most sophisticated payload observed. The attacker places a binary inside a randomly-named hidden directory and executes it masquerading as a legitimate system process (`sshd`).
+The most advanced payload I saw. The attacker puts a binary inside a hidden directory with a random name, then runs it under a trusted looking process name (`sshd`).
 
 **Source IP:** `142.93.220.184`
 
@@ -105,9 +105,9 @@ nohup ./.1455647341291108698/sshd &
 ```
 
 **Analysis:**
-- Directory name `.1455647341291108698` is a random numeric string — inconspicuous in directory listings and hard to search for
-- Binary named `sshd` — impersonates the legitimate SSH daemon to blend into process listings (`ps aux`)
-- `nohup ... &` runs the process in the background, detached from the session — persists after the attacker disconnects
+- Directory name `.1455647341291108698` is a random numeric string: inconspicuous in directory listings and hard to search for
+- Binary named `sshd`: impersonates the legitimate SSH daemon to blend into process listings (`ps aux`)
+- `nohup ... &` runs the process in the background, detached from the session: persists after the attacker disconnects
 - Leading `.` makes the directory hidden from standard `ls` output
 - This is a classic **process masquerading** technique
 
@@ -117,13 +117,13 @@ nohup ./.1455647341291108698/sshd &
 - Joins a botnet for DDoS or cryptomining
 
 **MITRE ATT&CK:**
-- T1036.005 — Masquerade: Match Legitimate Name or Location
-- T1059.004 — Command and Scripting Interpreter: Unix Shell
-- T1543 — Create or Modify System Process
+- T1036.005: Masquerade: Match Legitimate Name or Location
+- T1059.004: Command and Scripting Interpreter: Unix Shell
+- T1543: Create or Modify System Process
 
 ---
 
-### Pattern 4 — C2 Callback with Hardcoded IPs
+### Pattern 4: C2 Callback with Hardcoded IPs
 
 An attacker passing command-and-control server IPs as arguments to a downloaded binary.
 
@@ -135,15 +135,15 @@ An attacker passing command-and-control server IPs as arguments to a downloaded 
 ```
 
 **Analysis:**
-- Two C2 IPs passed as arguments — likely primary and fallback C2 servers
-- `57.129.54.69` — OVH/Leaseweb hosted, commonly used by threat actors for C2 infrastructure
-- `103.61.122.197` — Asian hosting provider
+- Two C2 IPs passed as arguments: likely primary and fallback C2 servers
+- `57.129.54.69`: OVH/Leaseweb hosted, commonly used by threat actors for C2 infrastructure
+- `103.61.122.197`: Asian hosting provider
 - Consistent with botnet implants that beacon home to a C2 server for further instructions
-- Hardcoding C2 IPs (vs. domain names) is simpler but fragile — a single IP block kills the campaign
+- Hardcoding C2 IPs (vs. domain names) is simpler but fragile: a single IP block kills the campaign
 
 **MITRE ATT&CK:**
-- T1071.001 — Application Layer Protocol: Web Protocols
-- T1102 — Web Service (C2 over hosted infrastructure)
+- T1071.001: Application Layer Protocol: Web Protocols
+- T1102: Web Service (C2 over hosted infrastructure)
 
 ---
 
@@ -157,7 +157,7 @@ hassh: 03a80b21afa810682a776a7d42e5e6fb
 kexAlgs: curve25519-sha256, ecdh-sha2-nistp256, diffie-hellman-group18-sha512...
 ```
 
-The HASSH value `03a80b21afa810682a776a7d42e5e6fb` is associated with standard OpenSSH clients — suggesting either legitimate OpenSSH tooling or a scanner that spoofs the OpenSSH fingerprint. Custom attack tools often have distinctive HASSH values that persist across IP changes, making them useful for campaign tracking.
+The HASSH value `03a80b21afa810682a776a7d42e5e6fb` is associated with standard OpenSSH clients: suggesting either legitimate OpenSSH tooling or a scanner that spoofs the OpenSSH fingerprint. Custom attack tools often have distinctive HASSH values that persist across IP changes, making them useful for campaign tracking.
 
 ---
 
@@ -176,11 +176,11 @@ Based on command sequence analysis, at least **four distinct campaigns** are ide
 
 ## Defensive Takeaways
 
-- **Default credentials are hammered constantly** — any internet-exposed SSH with password auth will be compromised within hours if using common passwords
-- **Automated campaigns dominate** — the vast majority of attacks are fully automated bots, not human operators
-- **DigitalOcean is heavily abused** — 5 of the top 10 attacking IPs are DO-hosted. IP reputation blocklists targeting cloud provider ranges are a practical first defence layer
-- **Architecture fingerprinting is universal** — nearly every sophisticated attacker checks `uname -m` before dropping a payload
-- **Process masquerading is common** — naming malicious binaries after legitimate processes (`sshd`, `systemd`, `kworker`) is a standard evasion technique
+- **Default credentials are hammered constantly**: any internet-exposed SSH with password auth will be compromised within hours if using common passwords
+- **Automated campaigns dominate**: the vast majority of attacks are fully automated bots, not human operators
+- **DigitalOcean is heavily abused**: 5 of the top 10 attacking IPs are DO-hosted. IP reputation blocklists targeting cloud provider ranges are a practical first defence layer
+- **CPU checks are common**: nearly every advanced attacker checks `uname -m` before dropping a payload
+- **Process masquerading is common**: naming malicious binaries after legitimate processes (`sshd`, `systemd`, `kworker`) is a standard evasion technique
 
 ---
 

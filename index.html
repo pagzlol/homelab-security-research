@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ningi.dev | Troy's Homelab Security Research</title>
+    <meta
+      name="description"
+      content="Security writeups, detections, malware notes, and incident response lessons from Troy's live homelab."
+    >
+    <meta name="theme-color" content="#061017">
+    <meta property="og:title" content="ningi.dev | Homelab Security Research">
+    <meta
+      property="og:description"
+      content="Security writeups, findings, detections, and tools from a live homelab run by Troy in Queensland, Australia."
+    >
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ningi.dev/">
+    <meta property="og:image" content="https://ningi.dev/assets/ningi-header.svg">
+    <link rel="icon" href="assets/ningi-avatar.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="assets/ningi-avatar.png">
+    <link rel="canonical" href="https://ningi.dev/">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="ningi.dev home">
+        <img src="assets/ningi-avatar.svg" alt="" width="40" height="40">
+        <span>ningi.dev</span>
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#work">Work</a>
+        <a href="#findings">Findings</a>
+        <a href="#tools">Tools</a>
+        <a href="mailto:troy@ningi.dev">Contact</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <picture class="hero-media">
+          <img src="assets/portfolio-hero.png" alt="" fetchpriority="high">
+        </picture>
+        <div class="hero-scrim"></div>
+        <div class="hero-content">
+          <p class="eyebrow">Live lab security research</p>
+          <h1 id="hero-title">ningi.dev</h1>
+          <p class="lede">
+            I built this to watch attacker behaviour and turn the useful bits into detections.
+          </p>
+          <div class="hero-actions" aria-label="Portfolio actions">
+            <a class="button primary" href="#work">View writeups</a>
+            <a class="button secondary" href="https://github.com/pagzlol/homelab-security-research">GitHub</a>
+            <a class="button secondary" href="mailto:troy@ningi.dev">troy@ningi.dev</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Portfolio summary">
+        <div>
+          <strong>14</strong>
+          <span>technical writeups</span>
+        </div>
+        <div>
+          <strong>4</strong>
+          <span>security findings</span>
+        </div>
+        <div>
+          <strong>Live</strong>
+          <span>Cowrie + Wazuh lab</span>
+        </div>
+        <div>
+          <strong>QLD</strong>
+          <span>built by Troy</span>
+        </div>
+      </section>
+
+      <section class="intro section-band" aria-labelledby="intro-title">
+        <div class="section-heading">
+          <p class="eyebrow">What this is</p>
+          <h2 id="intro-title">Security work from a lab I actually run.</h2>
+        </div>
+        <div class="intro-copy">
+          <p>
+            This is the work behind NINGI: a public SSH honeypot, custom Wazuh rules, recon scripts, malware I captured, and the lessons from a real ZNC compromise.
+          </p>
+          <p>
+            I write it the way I use it: what happened, what I saw, how I detected it, and what I changed after.
+          </p>
+        </div>
+      </section>
+
+      <section id="work" class="section" aria-labelledby="work-title">
+        <div class="section-heading">
+          <p class="eyebrow">Featured writeups</p>
+          <h2 id="work-title">Research from the lab</h2>
+        </div>
+
+        <div class="filters" aria-label="Filter featured work">
+          <button class="filter active" type="button" data-filter="all">All</button>
+          <button class="filter" type="button" data-filter="honeypot">Honeypot</button>
+          <button class="filter" type="button" data-filter="malware">Malware</button>
+          <button class="filter" type="button" data-filter="incident">Incident</button>
+          <button class="filter" type="button" data-filter="detection">Detection</button>
+        </div>
+
+        <div class="work-grid">
+          <article class="work-card" data-category="honeypot detection">
+            <span class="tag">Honeypot</span>
+            <h3>Go dual-branch scanner with Solana targeting</h3>
+            <p>Two SSH scan paths using the same Go fingerprint. One checks for base64, the other collects system details and tries Solana themed passwords.</p>
+            <a href="https://github.com/pagzlol/homelab-security-research/blob/main/writeups/NINGI-WRITEUP-012-go-dual-branch-scanner-solana-targeting.md">Read NINGI-WRITEUP-012</a>
+          </article>
+
+          <article class="work-card" data-category="malware honeypot">
+            <span class="tag">Malware</span>
+            <h3>Redtail SFTP delivered cryptominer</h3>
+            <p>Captured ELF uploads, SSH backdoor setup, staging scripts, c3pool mining behaviour, and cleanup of rival malware.</p>
+            <a href="https://github.com/pagzlol/homelab-security-research/blob/main/writeups/NINGI-WRITEUP-009-redtail-sftp-upload-cryptominer.md">Read Redtail analysis</a>
+          </article>
+
+          <article class="work-card" data-category="incident">
+            <span class="tag">Incident response</span>
+            <h3>ZNC webadmin compromise and rebuild</h3>
+            <p>A full compromise writeup: root cause, attacker behaviour, cryptominer deployment, rebuild decisions, and the operating rules that changed afterward.</p>
+            <a href="https://github.com/pagzlol/homelab-security-research/blob/main/writeups/NINGI-WRITEUP-006-znc-webadmin-compromise-cryptominer.md">Read incident report</a>
+          </article>
+
+          <article class="work-card" data-category="detection">
+            <span class="tag">Detection</span>
+            <h3>Honeytoken detection system</h3>
+            <p>Fake secrets, auditd, Wazuh alerts, and enough testing to know the detection works in the real lab.</p>
+            <a href="https://github.com/pagzlol/homelab-security-research/blob/main/writeups/NINGI-WRITEUP-001-honeytoken-detection.md">Read honeytoken build</a>
+          </article>
+
+          <article class="work-card" data-category="honeypot detection">
+            <span class="tag">Attack surface</span>
+            <h3>Automated external monitoring</h3>
+            <p>Fuji checks ningi.dev from the outside so I can see DNS, web, TLS, exposed ports, and weird changes before they surprise me.</p>
+            <a href="https://github.com/pagzlol/homelab-security-research/blob/main/writeups/NINGI-WRITEUP-003-attack-surface-monitoring.md">Read monitoring notes</a>
+          </article>
+
+          <article class="work-card" data-category="malware honeypot">
+            <span class="tag">Threat intel</span>
+            <h3>mdrfckr hardware probe campaign</h3>
+            <p>SSH key injection, hardware checks, cleanup of rival malware, rotating hosts, and signatures I can actually use.</p>
+            <a href="https://github.com/pagzlol/homelab-security-research/blob/main/writeups/NINGI-WRITEUP-011-mdrfckr-hardware-probe.md">Read campaign notes</a>
+          </article>
+        </div>
+      </section>
+
+      <section id="findings" class="section section-band" aria-labelledby="findings-title">
+        <div class="section-heading">
+          <p class="eyebrow">Security findings</p>
+          <h2 id="findings-title">Things I saw, checked, and wrote up</h2>
+        </div>
+        <div class="finding-list">
+          <a href="https://github.com/pagzlol/homelab-security-research/blob/main/security-findings/NINGI-2026-004-ssh-dns-tunnel-via-direct-tcpip.md">
+            <span>NINGI-2026-004</span>
+            <strong>SSH direct-tcpip used as a DNS tunnel to 1.1.1.1:53</strong>
+          </a>
+          <a href="https://github.com/pagzlol/homelab-security-research/blob/main/security-findings/NINGI-2026-003-znc-ipv6-exposure.md">
+            <span>NINGI-2026-003</span>
+            <strong>ZNC webadmin IPv6 exposure that led to compromise</strong>
+          </a>
+          <a href="https://github.com/pagzlol/homelab-security-research/blob/main/security-findings/NINGI-2026-002-ssh-tunnel-relay-c2.md">
+            <span>NINGI-2026-002</span>
+            <strong>SSH tunnel relay abuse and CDN-fronted C2 beaconing</strong>
+          </a>
+          <a href="https://github.com/pagzlol/homelab-security-research/blob/main/security-findings/NINGI-2026-001-siem-log-injection.md">
+            <span>NINGI-2026-001</span>
+            <strong>SIEM log injection via IPv6 UDP syslog</strong>
+          </a>
+        </div>
+      </section>
+
+      <section id="tools" class="section split" aria-labelledby="tools-title">
+        <div class="section-heading">
+          <p class="eyebrow">Tooling</p>
+          <h2 id="tools-title">Small tools I use to keep the lab honest</h2>
+        </div>
+        <div class="tool-list">
+          <a href="https://github.com/pagzlol/homelab-security-research/blob/main/tools/wazuh_realtime.py">
+            <strong>wazuh_realtime.py</strong>
+            <span>Discord alerts from OpenSearch and Wazuh data.</span>
+          </a>
+          <a href="https://github.com/pagzlol/homelab-security-research/blob/main/tools/wazuh_digest.py">
+            <strong>wazuh_digest.py</strong>
+            <span>Daily alert digest without staring at dashboards.</span>
+          </a>
+          <a href="https://github.com/pagzlol/homelab-security-research/tree/main/tools/recon">
+            <strong>recon toolkit</strong>
+            <span>DNS, web, TLS, and port checks from outside the network.</span>
+          </a>
+          <a href="https://github.com/pagzlol/homelab-security-research/tree/main/campaign-signatures">
+            <strong>campaign signatures</strong>
+            <span>YAML signatures for detections, IOCs, and autoblock rules.</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="contact" aria-labelledby="contact-title">
+        <div>
+          <p class="eyebrow">Contact</p>
+          <h2 id="contact-title">Want to talk about the lab?</h2>
+        </div>
+        <a class="button primary" href="mailto:troy@ningi.dev">troy@ningi.dev</a>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Built by Troy in Queensland, Australia.</span>
+      <a href="https://github.com/pagzlol/homelab-security-research">GitHub portfolio</a>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-# Attack Surface Monitor — Setup Guide
+# Attack Surface Monitor: Setup Guide
 
 ## Overview
 
@@ -56,7 +56,7 @@ scp -P 2221 monitor.sh portscan.sh webscan.sh dnsscan.sh t@<fuji-ip>:~/attack-su
 chmod +x ~/attack-surface/*.sh
 ```
 
-2. Edit `monitor.sh` — set your real values:
+2. Edit `monitor.sh`: set your real values:
 
 ```bash
 TARGET_IP="<home-public-ip>"
@@ -152,7 +152,7 @@ Discord notification
 
 **New port exposed:**
 ```
-⚠️ [L12] 100301 ubuntu — Attack surface: new port exposed
+⚠️ [L12] 100301 ubuntu: Attack surface: new port exposed
 Target : <home-public-ip>
 Detail : Port 8080 (http-proxy) newly open
 Time   : 2026-03-10T14:00:00Z
@@ -160,13 +160,13 @@ Time   : 2026-03-10T14:00:00Z
 
 **Shodan CVE detected:**
 ```
-🚨 [L15] 100306 ubuntu — Shodan flagged CVE on <home-public-ip>
+🚨 [L15] 100306 ubuntu: Shodan flagged CVE on <home-public-ip>
 Detail : CVE-2024-XXXX
 ```
 
 **New cert issued:**
 ```
-[L8] 100309 ubuntu — New TLS cert issued
+[L8] 100309 ubuntu: New TLS cert issued
 Detail : staging.ningi.io
 ```
 

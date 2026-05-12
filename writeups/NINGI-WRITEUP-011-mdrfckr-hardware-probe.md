@@ -9,7 +9,7 @@
 | **Severity** | Medium (SSH backdoor installed; hardware probe for staging) |
 | **Related Campaign** | NINGI-WRITEUP-004 (same `mdrfckr` SSH key) |
 | **Primary Session** | `18c1a75a934a` (122.175.36.92) |
-| **Spread Sessions** | 4.213.160.153, 180.93.137.63, 180.252.199.166 (wave 1); 161.49.89.39, 189.203.163.10, 43.153.104.156 (wave 2 — 2026-05-05) |
+| **Spread Sessions** | 4.213.160.153, 180.93.137.63, 180.252.199.166 (wave 1); 161.49.89.39, 189.203.163.10, 43.153.104.156 (wave 2: 2026-05-05) |
 
 ---
 
@@ -17,7 +17,7 @@
 
 On 2026-05-05 at 01:56 UTC, the fuji honeypot captured an extended session from `122.175.36.92` that runs two distinct stages: first the standard `mdrfckr` SSH backdoor installation documented in NINGI-WRITEUP-004, then a **15-command hardware and container fingerprinting sequence** designed to score the target before committing to full exploitation.
 
-This is the same toolset and SSH key as NINGI-WRITEUP-004, now with a target-scoring phase added. The probe collects CPU count and model, RAM, disk size, architecture, and binary type — enough to determine whether the host is bare metal with mining capacity or a lightweight container not worth deploying on. The container detection technique here differs from NINGI-WRITEUP-010: rather than reading `/proc/1/mounts`, this probe uses the size of the `ls` binary (`ls -lh $(which ls)`) as an environment indicator.
+This is the same toolset and SSH key as NINGI-WRITEUP-004, now with a target-scoring phase added. The probe collects CPU count and model, RAM, disk size, architecture, and binary type: enough to determine whether the host is bare metal with mining capacity or a lightweight container not worth deploying on. The container detection technique here differs from NINGI-WRITEUP-010: rather than reading `/proc/1/mounts`, this probe uses the size of the `ls` binary (`ls -lh $(which ls)`) as an environment indicator.
 
 ~18 minutes after the recon session, a spread wave arrives: three other IPs hit the honeypot with the same two-command key injection, all sharing the same HASSH and `libssh_0.12.0` client. The recon node `122.175.36.92` subsequently joins the spread wave itself, running standard two-command install sessions on other discovered targets.
 
@@ -26,7 +26,7 @@ This is the same toolset and SSH key as NINGI-WRITEUP-004, now with a target-sco
 ## Attack Chain
 
 ```
-[Recon phase — 122.175.36.92, 01:56 UTC]
+[Recon phase: 122.175.36.92, 01:56 UTC]
     │
     ├── 1. Remove SSH protections (chattr -ia .ssh)
     ├── 2. Inject mdrfckr RSA backdoor key
@@ -42,7 +42,7 @@ This is the same toolset and SSH key as NINGI-WRITEUP-004, now with a target-sco
             ├── Processes: top, w
             └── Cron: crontab -l
 
-[Spread wave — 4 IPs, ~02:00–02:15 UTC]
+[Spread wave: 4 IPs, ~02:00–02:15 UTC]
     └── 2-command key injection only (no fingerprint, no password change)
 ```
 
@@ -50,7 +50,7 @@ This is the same toolset and SSH key as NINGI-WRITEUP-004, now with a target-sco
 
 ## Session Data
 
-### Primary Recon Session — `18c1a75a934a`
+### Primary Recon Session: `18c1a75a934a`
 
 | Field | Value |
 |---|---|
@@ -67,15 +67,15 @@ This is the same toolset and SSH key as NINGI-WRITEUP-004, now with a target-sco
 **Full command sequence:**
 
 ```bash
-# Phase 1 — Persistence
+# Phase 1: Persistence
 cd ~; chattr -ia .ssh; lockr -ia .ssh                          # lockr: not found (always fails)
 cd ~ && rm -rf .ssh && mkdir .ssh && echo "ssh-rsa AAAAB3Nz...mdrfckr" >> .ssh/authorized_keys && chmod -R go= ~/.ssh
 echo "root:y6ekwUbyoOkk"|chpasswd|bash                        # root password change
 
-# Phase 2 — Competitor displacement
+# Phase 2: Competitor displacement
 rm -rf /tmp/secure.sh; rm -rf /tmp/auth.sh; pkill -9 secure.sh; pkill -9 auth.sh; echo > /etc/hosts.deny; pkill -9 sleep;
 
-# Phase 3 — Hardware / container fingerprint
+# Phase 3: Hardware / container fingerprint
 cat /proc/cpuinfo | grep name | wc -l
 cat /proc/cpuinfo | grep name | head -n 1 | awk '{print $4,$5,$6,$7,$8,$9;}'
 free -m | grep Mem | awk '{print $2 ,$3, $4, $5, $6, $7}'
@@ -105,7 +105,7 @@ All spread sessions use the same HASSH (`af8223ac9914f509afdadfaf5f7ee94e`) and 
 
 The step-2 "connectivity check" session is consistent across all spread IPs and is a reliable signature of this toolset.
 
-**Wave 1 — ~02:00–02:15 UTC**
+**Wave 1: ~02:00–02:15 UTC**
 
 | Session | Source IP | Geo | Time (UTC) | Type |
 |---------|-----------|-----|------------|------|
@@ -114,9 +114,9 @@ The step-2 "connectivity check" session is consistent across all spread IPs and 
 | `83b8a00e781b` | 180.252.199.166 | Indonesia/Telkom | 02:00:01 | Spread |
 | `a99468768a5c` | 122.175.36.92 | India | 02:12:13 | Recon node, now spreading |
 
-**Wave 2 — ~04:16–08:54 UTC (infrastructure rotation)**
+**Wave 2: ~04:16–08:54 UTC (infrastructure rotation)**
 
-The wave 1 nodes went silent. A second spread wave arrived ~2 hours later using identical tooling — same HASSH (`af8223ac9914f509afdadfaf5f7ee94e`), same `libssh_0.12.0` client, same two-command payload, same RSA key — but entirely new source infrastructure. The wave 1 nodes have not been observed since.
+The wave 1 nodes went silent. A second spread wave arrived ~2 hours later using identical tooling: same HASSH (`af8223ac9914f509afdadfaf5f7ee94e`), same `libssh_0.12.0` client, same two-command payload, same RSA key: but entirely new source infrastructure. The wave 1 nodes have not been observed since.
 
 | Source IP | Geo | Activity | Type |
 |-----------|-----|----------|------|
@@ -124,21 +124,21 @@ The wave 1 nodes went silent. A second spread wave arrived ~2 hours later using 
 | 189.203.163.10 | Mexico | 2 sessions, 04:47 UTC | Spread |
 | 43.153.104.156 | Tencent Cloud | 2 sessions, 04:16 UTC | Spread |
 
-`161.49.89.39` was the most active node, running the triplet pattern (~14 login triplets in under 40 minutes). The tooling and key are byte-for-byte identical to wave 1, consistent with the same operator rotating infrastructure rather than a different actor reusing the key.
+`161.49.89.39` was the most active node, running the triplet pattern (~14 login triplets in under 40 minutes). The tooling and key are byte for byte identical to wave 1, consistent with the same operator rotating infrastructure rather than a different actor reusing the key.
 
 ---
 
 ## Phase Analysis
 
-### Phase 1 — Persistence
+### Phase 1: Persistence
 
-**`lockr -ia .ssh`** fails with `Command not found` in every session — recon and spread alike. It is part of the script template regardless. The command does not exist on standard Linux; it is likely a proprietary tool deployed only in the operator's own infrastructure, or a compatibility shim for a non-standard environment. Its consistent presence across all sessions makes it a reliable toolset fingerprint.
+**`lockr -ia .ssh`** fails with `Command not found` in every session: recon and spread alike. It is part of the script template regardless. The command does not exist on standard Linux; it is likely a proprietary tool deployed only in the operator's own infrastructure, or a compatibility shim for a non-standard environment. Its consistent presence across all sessions makes it a reliable toolset fingerprint.
 
 **`chpasswd | bash`**: pipes `chpasswd` output to bash. On a real host, `chpasswd` is silent on success, so nothing executes. The construct appears to be either sloppy scripting or a leftover from a version of the script designed to handle stdout from a different command. The new root password (`y6ekwUbyoOkk`) provides a secondary access path if the SSH key is discovered and removed.
 
-**Key cross-reference**: The `mdrfckr` RSA key is byte-for-byte identical to the key in NINGI-WRITEUP-004. SHA256 of the authorised_keys write capture: `a8460f446be540410004b1a8db4083773fa46f7fe76fa84219c93daa1669f8f2` — same across every session in this campaign and the NINGI-WRITEUP-004 sessions.
+**Key cross-reference**: The `mdrfckr` RSA key is byte for byte identical to the key in NINGI-WRITEUP-004. SHA256 of the authorised_keys write capture: `a8460f446be540410004b1a8db4083773fa46f7fe76fa84219c93daa1669f8f2`: same across every session in this campaign and the NINGI-WRITEUP-004 sessions.
 
-### Phase 2 — Competitor Displacement
+### Phase 2: Competitor Displacement
 
 ```bash
 rm -rf /tmp/secure.sh; rm -rf /tmp/auth.sh
@@ -147,9 +147,9 @@ echo > /etc/hosts.deny
 pkill -9 sleep
 ```
 
-The specific script names (`secure.sh`, `auth.sh`) are not generic — they target known filenames left by competing botnet families. The `echo > /etc/hosts.deny` clears any IP-based denials that a competing infection may have written to lock out rivals. `pkill -9 sleep` terminates sleep processes used as wait loops in other malware's polling loops.
+The specific script names (`secure.sh`, `auth.sh`) are not generic: they target known filenames left by competing botnet families. The `echo > /etc/hosts.deny` clears any IP-based denials that a competing infection may have written to lock out rivals. `pkill -9 sleep` terminates sleep processes used as wait loops in other malware's polling loops.
 
-### Phase 3 — Hardware / Container Fingerprint
+### Phase 3: Hardware / Container Fingerprint
 
 The 15-command probe runs in approximately 7 seconds and returns a complete machine profile. All output is read back by the automation tool over the live SSH channel.
 
@@ -159,9 +159,9 @@ The size of the `ls` binary is an environment indicator. On a standard Ubuntu in
 
 | Environment | `ls -lh $(which ls)` result | Operator inference |
 |-------------|-----------------------------|--------------------|
-| Ubuntu bare metal | `/usr/bin/ls` — 138K ELF64 | Worth deploying |
-| Alpine Docker | `/bin/ls` → BusyBox symlink | Container — skip |
-| BusyBox-only container | Points to BusyBox | Container — skip |
+| Ubuntu bare metal | `/usr/bin/ls`: 138K ELF64 | Worth deploying |
+| Alpine Docker | `/bin/ls` → BusyBox symlink | Container: skip |
+| BusyBox-only container | Points to BusyBox | Container: skip |
 | Cowrie honeypot | Fake filesystem output | Cannot be determined from session |
 
 This technique is distinct from the `/proc/1/mounts` overlay check used in NINGI-WRITEUP-010. Both approaches identify containers but via different signals; this one works even when `/proc/1/` is restricted or incomplete.
@@ -193,7 +193,7 @@ The redundant CPU count (run twice via different methods: `cpuinfo grep wc -l` a
 | Container detection method | None observed | `/proc/1/mounts` overlay check | `ls -lh $(which ls)` binary size |
 | Hardware fingerprint | None | `/proc/cpuinfo` (full) | 15-command structured probe |
 | Persistence | mdrfckr key + dropper | None | mdrfckr key + password change |
-| Follow-on payload | Multi-arch dropper (bins.sh) | None | Not yet observed |
+| Next stage payload | Multi-arch dropper (bins.sh) | None | Not yet observed |
 | Evasion technique | Self-deleting binaries | Tor routing + echo-pipe | `lockr` (unknown), competitor cleanup |
 | Infrastructure | Dedicated C2 (89.190.156.x) | Tor exits | Distributed botnet (libssh) |
 | SSH client | Not documented | SSH-2.0-Go | SSH-2.0-libssh_0.12.0 |
@@ -226,7 +226,7 @@ The redundant CPU count (run twice via different methods: `cpuinfo grep wc -l` a
 
 The `lockr` command appearing immediately after `chattr -ia .ssh` is a unique toolset fingerprint. `lockr` has no legitimate use on standard Linux. Its presence is a reliable indicator of the mdrfckr script template regardless of whether the key injection step completes.
 
-The three-attempt credential sequence (`345gs5662d34` fail → `root:3245gs5662d34` no-op success → real payload) is also distinctive: blocking after step 2 (a successful root login that runs zero commands) would short-circuit the wave before the payload runs.
+The three-attempt credential sequence (`345gs5662d34` fail → `root:3245gs5662d34` no op success → real payload) is also distinctive: blocking after step 2 (a successful root login that runs zero commands) would short-circuit the wave before the payload runs.
 
 ---
 
@@ -238,7 +238,7 @@ The three-attempt credential sequence (`345gs5662d34` fail → `root:3245gs5662d
 |----|------|-----|-------|
 | 122.175.36.92 | Recon node | India | Ran full 19-command fingerprint |
 | 180.93.137.63 | Spread node (wave 1) | India/BSNL | Standard key injection |
-| 4.213.160.153 | Spread node (wave 1) | Microsoft Azure (US) | Cloud-hosted spread node |
+| 4.213.160.153 | Spread node (wave 1) | Microsoft Azure (US) | Cloud hosted spread node |
 | 180.252.199.166 | Spread node (wave 1) | Indonesia/Telkom | Standard key injection |
 | 161.49.89.39 | Spread node (wave 2) | Philippines | ~14 sessions; most active wave 2 node |
 | 189.203.163.10 | Spread node (wave 2) | Mexico | 2 sessions |

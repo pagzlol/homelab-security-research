@@ -9,7 +9,7 @@
 
 ## Overview
 
-On 2026-03-22 I decommissioned the original Ubuntu home server after the
+On 2026-03-22 I took the original Ubuntu home server offline after the
 ZNC webadmin compromise documented in
 [NINGI-WRITEUP-006](./NINGI-WRITEUP-006-znc-webadmin-compromise-cryptominer.md).
 I could have cleaned that part out of the portfolio, rewritten the story,
@@ -23,14 +23,14 @@ show how I investigate mistakes, how I change my operating model after
 getting something wrong, and what the rebuilt environment looks like when
 those lessons are taken seriously.
 
-This post documents the shape of the lab after that rebuild and why the new
-stack is organised the way it is.
+This post explains what the lab looks like after that rebuild and why the
+new stack is set up the way it is.
 
 ---
 
-## Why I Did Not Redact the Compromise
+## Why I Did Not Hide the Compromise
 
-I considered redacting the ZNC compromise.
+I considered hiding the ZNC compromise.
 
 There is always a temptation to hide the part where the operator got it
 wrong: the public listener that should not have been public, the assumption
@@ -38,7 +38,7 @@ that a bind setting meant something it did not, the bad password-hash
 fallback, the missing detection coverage on the one host that needed it
 most.
 
-But redacting that would make the repo less honest and less useful.
+But hiding that would make the repo less honest and less useful.
 
 The compromise on 2026-03-22 is the reason the rebuild is better. It forced
 me to stop treating hardening as a one-time cleanup pass and start treating
@@ -58,7 +58,7 @@ The lab is now split across three clearer roles:
 | Node | Role | Purpose |
 |---|---|---|
 | Argus | Core visibility and control plane | Central place for monitoring, detections, and the paranoid baseline that should have existed earlier |
-| Fuji | External vantage point | Public-facing VPS for Cowrie, attack-surface monitoring, and seeing the lab the way the internet sees it |
+| Fuji | Outside view | Public facing VPS for Cowrie, attack surface monitoring, and seeing the lab the way the internet sees it |
 | Margo-1 | Rebuilt workload node | Separated host for the services and experiments that should not share trust boundaries with the monitoring layer |
 
 This separation matters more than the hostnames themselves.
@@ -75,7 +75,7 @@ environment is designed to limit blast radius when they do.
 ### 1. External visibility is now a permanent part of the design
 
 Fuji is not just a VPS running some side tooling. It is the outside view.
-The attack-surface monitoring stack runs from Fuji because internal scans do
+The attack surface monitoring stack runs from Fuji because internal scans do
 not tell me what the internet can actually reach.
 
 That lesson is directly tied to the ZNC failure. The listener exposure that
@@ -93,11 +93,11 @@ rules. If a path matters, it gets monitored before the service goes live.
 
 ### 3. Role separation is sharper
 
-Argus, Fuji, and Margo-1 exist to keep sensing, exposure, and workloads from
-bleeding together more than they need to. The monitoring side should not be
-an afterthought attached to the same trust boundary as everything else. The
-public-facing side should be expected to absorb noise and hostility. The
-workload side should assume it must earn access rather than inherit it.
+Argus, Fuji, and Margo-1 keep monitoring, public exposure, and workloads
+separate. The monitoring side should not be an afterthought attached to
+everything else. The public facing side should be expected to absorb noise
+and hostile traffic. The workload side should earn access rather than inherit
+it.
 
 ### 4. Verification replaced assumption
 
@@ -137,7 +137,7 @@ failed.
 Argus, Fuji, and Margo-1 are the result of that change. They represent a lab
 that was rebuilt with more separation, more verification, and less ego.
 
-I do not think the right response to a mistake is to redact it.
+I do not think the right response to a mistake is to hide it.
 I think the right response is to understand it deeply enough that the next
 version of the system carries the lesson forward by design.
 

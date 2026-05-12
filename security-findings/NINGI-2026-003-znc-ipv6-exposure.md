@@ -94,7 +94,7 @@ The main lesson from this finding is that intended config is not proof. The bind
 - IPv4 and IPv6 are separate attack surfaces
 - `BindHost` is not the same thing as a listener bind restriction
 - Listener verification belongs in the deployment process, not as an afterthought
-- Internet-facing admin panels need both binding controls and firewall controls, not one or the other
+- Admin panels exposed to the internet need both binding controls and firewall controls, not one or the other
 
 ---
 

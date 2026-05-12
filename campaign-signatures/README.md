@@ -2,7 +2,7 @@
 
 Each `.yml` file in this directory maps a documented writeup to machine-readable
 Cowrie command patterns. When a pattern matches in a live Cowrie session, Wazuh
-active response auto-blocks the source IP for `block_days` on argus, margo-1, and fuji.
+active response auto blocks the source IP for `block_days` on argus, margo-1, and fuji.
 
 ## Format
 

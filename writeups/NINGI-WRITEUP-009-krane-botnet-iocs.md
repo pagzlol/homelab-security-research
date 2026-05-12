@@ -10,7 +10,7 @@ tags:
   - threat/monero
 ---
 
-# Krane Botnet — Indicators of Compromise
+# Krane Botnet: Indicators of Compromise
 
 Reference: [`NINGI-WRITEUP-009-krane-botnet-go-cryptominer.md`](NINGI-WRITEUP-009-krane-botnet-go-cryptominer.md)
 

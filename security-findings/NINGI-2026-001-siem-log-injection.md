@@ -4,7 +4,7 @@
 **Date:** 2026-03-10
 **Severity:** High
 **Status:** Remediated - 2026-03-10
-**Environment:** ningi homelab — Ubuntu 24.04 / Wazuh 4.14.0 / Docker
+**Environment:** ningi homelab: Ubuntu 24.04 / Wazuh 4.14.0 / Docker
 
 ---
 
@@ -20,7 +20,7 @@ I found that an unauthenticated attacker with IPv6 access to the Ubuntu homelab 
 |---|---|
 | Host | Ubuntu 24.04, `192.168.0.x` / `<public-ip>` |
 | SIEM | Wazuh 4.14.0 (containerised, single-node) |
-| Exposed port | UDP 514 (syslog) — docker-proxy → wazuh-remoted |
+| Exposed port | UDP 514 (syslog): docker-proxy → wazuh-remoted |
 | IPv6 block | `<ipv6-block>/56` (full /56 routed by ISP) |
 | Affected addresses | All 13 `7500::` addresses bound to eno1 |
 
@@ -39,20 +39,20 @@ When the Wazuh syslog remote listener was added to `ossec.conf`, it was configur
 </remote>
 ```
 
-Docker mapped this to the host as `[::]:514` (IPv6 wildcard), meaning all 13 publicly routable IPv6 addresses on the interface accepted inbound UDP 514. The `allowed-ips` field in Wazuh's config only supports IPv4 CIDR notation — IPv6 source filtering is not applied.
+Docker mapped this to the host as `[::]:514` (IPv6 wildcard), meaning all 13 publicly routable IPv6 addresses on the interface accepted inbound UDP 514. The `allowed-ips` field in Wazuh's config only supports IPv4 CIDR notation: IPv6 source filtering is not applied.
 
 ---
 
 ## Proof of Concept
 
-### Test 1 — Injection from fuji VPS (external, public IPv6)
+### Test 1: Injection from fuji VPS (external, public IPv6)
 
 ```bash
 # Sent from fuji-mailbox (<fuji-public-ip> / Tailscale <fuji-tailscale>)
 logger -n <ipv6-ssh> -P 514 "sshd: Accepted password for root"
 ```
 
-### Test 2 — Injection from Windows laptop via PowerShell
+### Test 2: Injection from Windows laptop via PowerShell
 
 ```powershell
 $udpClient = New-Object System.Net.Sockets.UdpClient([System.Net.Sockets.AddressFamily]::InterNetworkV6)
@@ -75,11 +75,11 @@ Packet arrived at host → forwarded by docker-proxy → received by Wazuh manag
 ### Wazuh archives confirmation
 
 ```
-2026 Mar 10 02:00:45 wazuh->172.19.0.1 1 2026-03-10T12:00:45.260282+10:00 ubuntu t - - 
+2026 Mar 10 02:00:45 wazuh->172.19.0.1 1 2026-03-10T12:00:45.260282+10:00 ubuntu t - -
 [timeQuality tzKnown="1" isSynced="1" syncAccuracy="725000"] sshd: Accepted password for root
 ```
 
-Event was ingested and stored in `/var/ossec/logs/archives/archives.log` — **injection confirmed**.
+Event was ingested and stored in `/var/ossec/logs/archives/archives.log`: **injection confirmed**.
 
 ---
 
@@ -99,8 +99,8 @@ Event was ingested and stored in `/var/ossec/logs/archives/archives.log` — **i
 
 Two compounding issues:
 
-1. **Overly permissive `allowed-ips`** — set to `0.0.0.0/0` during initial testing, never restricted
-2. **IPv6 wildcard bind** — docker-proxy binds `[::]:514` meaning all public IPv6 addresses on the host accept the traffic, and Wazuh's `allowed-ips` does not filter IPv6 sources
+1. **Overly permissive `allowed-ips`**: set to `0.0.0.0/0` during initial testing, never restricted
+2. **IPv6 wildcard bind**: docker-proxy binds `[::]:514` meaning all public IPv6 addresses on the host accept the traffic, and Wazuh's `allowed-ips` does not filter IPv6 sources
 
 ---
 
@@ -146,7 +146,7 @@ Events injected from untrusted sources will show `wazuh->172.19.0.1` as the sour
 <rule id="100400" level="12">
   <if_sid>1002</if_sid>
   <match>sshd: Accepted password for root</match>
-  <description>Possible syslog injection — root login via syslog</description>
+  <description>Possible syslog injection: root login via syslog</description>
   <group>injection,syslog_abuse</group>
 </rule>
 ```
@@ -155,7 +155,7 @@ Events injected from untrusted sources will show `wazuh->172.19.0.1` as the sour
 
 ## Lessons Learned
 
-- `allowed-ips` in Wazuh does not apply to IPv6 sources — ip6tables is required as a separate control layer
+- `allowed-ips` in Wazuh does not apply to IPv6 sources: ip6tables is required as a separate control layer
 - Docker's `[::]:PORT` wildcard bind exposes all host IPv6 addresses, not just the intended service IP
 - Any service exposed on UDP without authentication should be treated as injectable and protected at the network layer
 - This is a realistic attack vector against SIEM infrastructure in environments with public IPv6 routing
@@ -166,7 +166,7 @@ Events injected from untrusted sources will show `wazuh->172.19.0.1` as the sour
 
 - Wazuh remote configuration docs: https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/remote.html
 - CVE pattern: SIEM log injection / log forging (CWE-117)
-- MITRE ATT&CK: T1562.006 — Impair Defenses: Indicator Blocking
+- MITRE ATT&CK: T1562.006: Impair Defenses: Indicator Blocking
 
 ---
 
