@@ -66,8 +66,7 @@ The main lesson that stuck is simple: I do not assume a service is only listenin
 
 - Main avatar: [`assets/ningi-avatar.png`](assets/ningi-avatar.png)
 - Alternate avatar source: [`assets/ningi-avatar.svg`](assets/ningi-avatar.svg)
-- Profile banner / repo header: [`assets/ningi-header.svg`](assets/ningi-header.svg)
-
+- Profile banner / repo header: [`assets/ndl-banner.svg`](assets/ndl-banner.svg)
 ---
 
 Built and documented by Troy in Queensland, Australia.
