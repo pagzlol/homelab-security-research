@@ -1,6 +1,6 @@
 # Troy | Homelab Security Research
 
-![ningi.dev banner](assets/ningi-header.svg)
+![ningi.dev banner](assets/ndl-banner.svg)
 
 ![NINGI logo: light blue ND letters in a geometric style, centered within concentric cyan circles on a dark navy background, with a small coral dot accent in the upper right](assets/ningi-avatar.png)
 
