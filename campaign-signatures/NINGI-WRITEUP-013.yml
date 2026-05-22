@@ -1,0 +1,27 @@
+campaign: NINGI-WRITEUP-013
+name: Multi-Asset Theft Probe — Telegram, SMS, MikroTik
+date: 2026-05-17
+severity: high
+source_ips:
+  - 176.195.93.253
+ssh_fingerprints:
+  - client: SSH-2.0-libssh2_1.11.1
+    hassh: f45fb203c31069bb280067b71ed92ccb
+credentials:
+  - username: root
+    password: admin
+command_indicators:
+  - /ip cloud print
+  - "ls -la ~/.local/share/TelegramDesktop/tdata"
+  - /dev/ttyGSM
+  - qmuxd
+  - smsd.log
+  - "locate D877F783D5D3EF8Cs"
+  - "echo Hi | cat -n"
+  - "ps | grep '[Mm]iner'"
+session_structure: one-command-per-session (9 sessions, same source IP)
+payload: none
+notes: >
+  MikroTik check expected to fail on Linux. Telegram tdata exfil and SMS
+  modem discovery are the primary objectives. locate hash unknown — possible
+  Monero wallet ID or malware artifact.

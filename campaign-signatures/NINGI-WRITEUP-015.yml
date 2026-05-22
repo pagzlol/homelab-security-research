@@ -1,0 +1,34 @@
+campaign: NINGI-WRITEUP-015
+name: mdrfckr Wave 3 — Per-Session Rotating Passwords + libssh Divergence
+date_range: 2026-05-09 to present
+severity: medium
+related: NINGI-WRITEUP-004, NINGI-WRITEUP-011
+source_ips:
+  - 103.245.249.246  # wave 3, libssh_0.12.0
+  - 31.59.89.180     # wave 3, libssh_0.12.0
+  - 103.187.26.126   # wave 3, libssh_0.12.0
+  - 185.225.41.192   # wave 3, libssh_0.12.0
+  - 37.143.61.241    # wave 3, libssh_0.9.6 (new variant)
+ssh_fingerprints:
+  - client: SSH-2.0-libssh_0.12.0
+    hassh: af8223ac9914f509afdadfaf5f7ee94e
+  - client: SSH-2.0-libssh_0.9.6
+    hassh: f555226df1963d1d3c09daf865abdc9a
+backdoor_key:
+  comment: mdrfckr
+  sha256: a8460f446be540410004b1a8db4083773fa46f7fe76fa84219c93daa1669f8f2
+stable_indicators:
+  - "lockr -ia .ssh"            # always fails; always present — toolset fingerprint
+  - "chattr -ia .ssh"
+  - "root:3245gs5662d34"        # connectivity check — succeeds, zero commands
+  - "345gs5662d34:345gs5662d34" # username probe — always fails
+changes_from_wave2:
+  - per_session_rotating_passwords: true  # was static y6ekwUbyoOkk
+  - password_method: double passwd invocation (echo -e + echo, both with \n)
+  - new_hassh: f555226df1963d1d3c09daf865abdc9a  # libssh_0.9.6 node
+  - new_username_target: jacob
+notes: >
+  Wave 3 removes the shared static root password that made wave 1/2 infections
+  trivially cross-correlatable. RSA key unchanged — still the primary detection
+  anchor. Block on 'lockr -ia .ssh' as stable toolset fingerprint regardless
+  of libssh version or HASSH value.

@@ -47,6 +47,9 @@ It is all based on a live environment. That includes a real compromise in March 
 - [NINGI-WRITEUP-010](writeups/NINGI-WRITEUP-010-tor-container-fingerprint-probe.md) - Tor-routed Go scanner performing container/VM fingerprinting via `/proc/1/` with nanosecond session correlation tokens
 - [NINGI-WRITEUP-011](writeups/NINGI-WRITEUP-011-mdrfckr-hardware-probe.md) - mdrfckr SSH key injection with hardware checks, cleanup of rival malware, and rotating hosts
 - [NINGI-WRITEUP-012](writeups/NINGI-WRITEUP-012-go-dual-branch-scanner-solana-targeting.md) - Go scanner that checks for base64, collects arch info, and targets weak Solana validator passwords
+- [NINGI-WRITEUP-013](writeups/NINGI-WRITEUP-013-telegram-sms-mikrotik-asset-theft-probe.md) - multi-asset theft probe: Telegram session cloning, SMS OTP interception, MikroTik device check, and competitor miner detection in a single session
+- [NINGI-WRITEUP-014](writeups/NINGI-WRITEUP-014-hex-encoded-credential-validator-may17-surge.md) - May 17 SSH surge: hex-encoded `\x6F\x6B` credential validator (4,629 sessions from Taiwan) and mass `uname -a` OS scanner
+- [NINGI-WRITEUP-015](writeups/NINGI-WRITEUP-015-mdrfckr-wave3-rotating-passwords-libssh-divergence.md) - mdrfckr Wave 3: per-session rotating passwords replace the static credential, and a second node variant using libssh_0.9.6 runs alongside the libssh_0.12.0 fleet
 
 ### Tooling
 
