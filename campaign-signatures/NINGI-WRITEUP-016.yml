@@ -1,0 +1,24 @@
+campaign: NINGI-WRITEUP-016
+name: Panchan P2P Botnet & Go-Based SSH Worm
+date_range: 2026-05-19 to present
+severity: high
+source_ips:
+  - 106.75.162.193   # 2026-05-19 upload
+  - 4.17.226.146     # 2026-05-22 upload
+  - 14.116.184.171   # 2026-05-23 upload
+  - 101.96.203.55    # 2026-05-24 upload
+  - 59.24.28.114     # 2026-05-29 upload
+ssh_fingerprints:
+  - client: SSH-2.0-Go
+    hassh: 98ddc5604ef6a1006a2b49a58759fbe6
+stable_indicators:
+  - "chmod +x ./.*/sshd; nohup ./.*/sshd"
+  - "systemd-worker"
+  - "sharerigconfig"
+  - "shareupdateinfo"
+  - "sharepeer"
+notes: >
+  Panchan is a Golang-based P2P botnet and SSH worm that drops mining payloads.
+  Identified on Fuji by repeated SFTP uploads of a 30MB stripped Go binary named 'sshd',
+  followed by execution attempts via hidden directories using nohup. Contains P2P protocol
+  commands for mining rig configuration distribution (sharerigconfig, shareupdateinfo, sharepeer).
