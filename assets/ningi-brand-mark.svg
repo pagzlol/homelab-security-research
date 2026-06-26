@@ -1,0 +1,45 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">ningi.dev brand mark</title>
+  <desc id="desc">Circular Ningi Detection Lab monogram with cyan signal rings and an amber detection dot.</desc>
+  <defs>
+    <linearGradient id="bg" x1="92" y1="76" x2="428" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#112A40"/>
+      <stop offset="0.52" stop-color="#09131E"/>
+      <stop offset="1" stop-color="#03070D"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="128" y1="108" x2="390" y2="396" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6BE4FF"/>
+      <stop offset="1" stop-color="#109BC8"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="174" y1="152" x2="342" y2="356" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F6FCFF"/>
+      <stop offset="0.55" stop-color="#D8F5FF"/>
+      <stop offset="1" stop-color="#8EE5FF"/>
+    </linearGradient>
+    <filter id="softGlow" x="54" y="54" width="404" height="404" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="#02050A"/>
+  <circle cx="256" cy="256" r="218" fill="url(#bg)"/>
+
+  <g opacity="0.2">
+    <path d="M-18 138L194 350" stroke="#2A536E" stroke-width="5"/>
+    <path d="M70 40L376 346" stroke="#2A536E" stroke-width="5"/>
+    <path d="M222 -14L540 304" stroke="#2A536E" stroke-width="5"/>
+    <path d="M-16 199H528" stroke="#2A536E" stroke-width="2"/>
+    <path d="M-16 292H528" stroke="#2A536E" stroke-width="2"/>
+    <path d="M168 -16V528" stroke="#2A536E" stroke-width="2"/>
+    <path d="M344 -16V528" stroke="#2A536E" stroke-width="2"/>
+  </g>
+
+  <circle cx="256" cy="256" r="160" stroke="#58D9FF" stroke-opacity="0.24" stroke-width="32" filter="url(#softGlow)"/>
+  <circle cx="256" cy="256" r="156" fill="#06101A"/>
+  <circle cx="256" cy="256" r="148" stroke="url(#ring)" stroke-width="12"/>
+  <path d="M169 347V165H212L303 275V165H345V347H304L212 235V347H169Z" fill="url(#mark)"/>
+
+  <circle cx="370" cy="156" r="10" fill="#FF8A5B"/>
+  <circle cx="144" cy="339" r="6" fill="#58D9FF" fill-opacity="0.9"/>
+  <circle cx="398" cy="350" r="5" fill="#58D9FF" fill-opacity="0.76"/>
+</svg>

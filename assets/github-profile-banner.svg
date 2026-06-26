@@ -1,0 +1,57 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Ningi Detection Lab GitHub profile banner</title>
+  <desc id="desc">Dark detection-lab banner for ningi.dev GitHub profile and repository README headers.</desc>
+  <defs>
+    <linearGradient id="bg" x1="104" y1="38" x2="1085" y2="641" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10263A"/>
+      <stop offset="0.5" stop-color="#09121C"/>
+      <stop offset="1" stop-color="#04070B"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="870" y1="132" x2="1136" y2="444" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E0FF"/>
+      <stop offset="1" stop-color="#109BC8"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="904" y1="180" x2="1082" y2="412" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4FBFF"/>
+      <stop offset="0.55" stop-color="#D6F4FF"/>
+      <stop offset="1" stop-color="#83DEFF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <g opacity="0.18">
+    <path d="M-60 92L432 584" stroke="#22455F" stroke-width="9"/>
+    <path d="M112 -42L704 550" stroke="#22455F" stroke-width="9"/>
+    <path d="M414 -88L1030 528" stroke="#22455F" stroke-width="9"/>
+    <path d="M740 -112L1388 536" stroke="#22455F" stroke-width="9"/>
+  </g>
+  <g opacity="0.22">
+    <path d="M0 128H1280" stroke="#2A536E" stroke-width="2"/>
+    <path d="M0 232H1280" stroke="#2A536E" stroke-width="2"/>
+    <path d="M0 336H1280" stroke="#2A536E" stroke-width="2"/>
+    <path d="M0 440H1280" stroke="#2A536E" stroke-width="2"/>
+    <path d="M0 544H1280" stroke="#2A536E" stroke-width="2"/>
+    <path d="M176 0V640" stroke="#2A536E" stroke-width="2"/>
+    <path d="M336 0V640" stroke="#2A536E" stroke-width="2"/>
+    <path d="M496 0V640" stroke="#2A536E" stroke-width="2"/>
+    <path d="M656 0V640" stroke="#2A536E" stroke-width="2"/>
+    <path d="M816 0V640" stroke="#2A536E" stroke-width="2"/>
+    <path d="M976 0V640" stroke="#2A536E" stroke-width="2"/>
+    <path d="M1136 0V640" stroke="#2A536E" stroke-width="2"/>
+  </g>
+
+  <g opacity="0.98">
+    <text x="86" y="252" fill="#F2FAFF" font-family="Segoe UI, Arial, sans-serif" font-size="74" font-weight="800">Ningi Detection Lab</text>
+    <text x="90" y="320" fill="#7BDFFF" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="2">LIVE SECURITY RESEARCH LAB</text>
+    <text x="90" y="388" fill="#B3D3E2" font-family="Segoe UI, Arial, sans-serif" font-size="31">detections, honeypots, incident response</text>
+    <text x="90" y="447" fill="#89AFC1" font-family="Segoe UI, Arial, sans-serif" font-size="25">Wazuh SIEM | Cowrie honeypots | Linux | Docker | IPv6</text>
+    <text x="90" y="500" fill="#5F879A" font-family="Segoe UI, Arial, sans-serif" font-size="23">www.ningi.dev | troy@ningi.dev</text>
+  </g>
+
+  <g opacity="0.95">
+    <circle cx="1010" cy="320" r="150" fill="#06101A"/>
+    <circle cx="1010" cy="320" r="141" stroke="url(#ring)" stroke-width="9"/>
+    <path d="M918 407V233H959L1061 356V233H1104V407H1063L960 282V407H918Z" fill="url(#mark)"/>
+    <circle cx="1126" cy="226" r="11" fill="#FF8A5B"/>
+  </g>
+</svg>

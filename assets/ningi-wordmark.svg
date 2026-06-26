@@ -1,0 +1,34 @@
+<svg width="980" height="220" viewBox="0 0 980 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Ningi Detection Lab wordmark</title>
+  <desc id="desc">Horizontal Ningi Detection Lab wordmark with the Ningi Detection Lab monogram.</desc>
+  <defs>
+    <linearGradient id="bg" x1="34" y1="10" x2="184" y2="198" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#112A40"/>
+      <stop offset="0.55" stop-color="#09131E"/>
+      <stop offset="1" stop-color="#03070D"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="50" y1="33" x2="168" y2="184" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6BE4FF"/>
+      <stop offset="1" stop-color="#109BC8"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="73" y1="56" x2="146" y2="159" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F6FCFF"/>
+      <stop offset="0.55" stop-color="#D8F5FF"/>
+      <stop offset="1" stop-color="#8EE5FF"/>
+    </linearGradient>
+  </defs>
+
+  <g>
+    <circle cx="110" cy="110" r="98" fill="#02050A"/>
+    <circle cx="110" cy="110" r="90" fill="url(#bg)"/>
+    <circle cx="110" cy="110" r="68" fill="#06101A"/>
+    <circle cx="110" cy="110" r="62" stroke="url(#ring)" stroke-width="7"/>
+    <path d="M75 148V71H93L131 118V71H148V148H131L93 101V148H75Z" fill="url(#mark)"/>
+    <circle cx="157" cy="68" r="5.5" fill="#FF8A5B"/>
+  </g>
+
+  <text x="244" y="104" fill="#F2FAFF" font-family="Segoe UI, Arial, sans-serif" font-size="56" font-weight="800">Ningi Detection Lab</text>
+  <text x="248" y="156" fill="#7BDFFF" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="2">LIVE SECURITY RESEARCH LAB</text>
+  <text x="248" y="190" fill="#89AFC1" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600">www.ningi.dev | troy@ningi.dev</text>
+  <circle cx="555" cy="184" r="5" fill="#FF8A5B"/>
+</svg>

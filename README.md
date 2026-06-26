@@ -1,8 +1,8 @@
-# Troy | Homelab Security Research
+# Ningi Detection Lab — Homelab Security Research
 
-![ningi.dev banner](assets/ndl-banner.svg)
+![Ningi Detection Lab](assets/github-profile-banner.png)
 
-![NINGI logo: light blue ND letters in a geometric style, centered within concentric cyan circles on a dark navy background, with a small coral dot accent in the upper right](assets/ningi-avatar.png)
+![Ningi Detection Lab avatar](assets/ningi-avatar.png)
 
 This repo shows the security work I built and ran in my homelab: detections, honeypot monitoring, attack surface checks, malware notes, and incident response.
 
@@ -70,9 +70,18 @@ The main lesson that stuck is simple: I do not assume a service is only listenin
 
 ## Brand Assets
 
-- Main avatar: [`assets/ningi-avatar.png`](assets/ningi-avatar.png)
-- Alternate avatar source: [`assets/ningi-avatar.svg`](assets/ningi-avatar.svg)
-- Profile banner / repo header: [`assets/ndl-banner.svg`](assets/ndl-banner.svg)
+See [`assets/brand-assets.md`](assets/brand-assets.md) for the full palette, usage guide, and asset inventory.
+
+Quick reference:
+
+| Asset | File | Use |
+|---|---|---|
+| GitHub banner | [`assets/github-profile-banner.png`](assets/github-profile-banner.png) | README / profile header |
+| Social preview | [`assets/github-social-preview.png`](assets/github-social-preview.png) | Repo social preview (GitHub settings) |
+| Avatar | [`assets/ningi-avatar.png`](assets/ningi-avatar.png) | GitHub avatar, profile picture |
+| Brand mark | [`assets/ningi-brand-mark.png`](assets/ningi-brand-mark.png) | Square icon, favicon |
+| Wordmark | [`assets/ningi-wordmark.png`](assets/ningi-wordmark.png) | Horizontal lockup |
+
 ---
 
-Built and documented by Troy in Queensland, Australia.
+Built and documented by Troy — [ningi.dev](https://ningi.dev) · troy@ningi.dev
