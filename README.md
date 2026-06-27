@@ -33,6 +33,7 @@ It is all based on a live environment. That includes a real compromise in March 
 - [NINGI-2026-002](security-findings/NINGI-2026-002-ssh-tunnel-relay-c2.md) - SSH tunnel relay abuse and CDN-fronted C2 beaconing
 - [NINGI-2026-003](security-findings/NINGI-2026-003-znc-ipv6-exposure.md) - ZNC webadmin IPv6 exposure that led to the March 2026 compromise
 - [NINGI-2026-004](security-findings/NINGI-2026-004-ssh-dns-tunnel-via-direct-tcpip.md) - SSH direct-tcpip abused as DNS exit proxy; no-shell tunnel to 1.1.1.1:53
+- [NINGI-2026-005](security-findings/NINGI-2026-005-ssh-http-liveness-proxy-checker.md) - HTTP liveness proxy-checker via direct-tcpip: 1,123 no-shell sessions relay-testing the box against bing.com; JA4H-linked to the ip-who.com checker noted in NINGI-2026-002
 
 ### Technical Writeups
 
@@ -53,6 +54,7 @@ It is all based on a live environment. That includes a real compromise in March 
 - [NINGI-WRITEUP-015](writeups/NINGI-WRITEUP-015-mdrfckr-wave3-rotating-passwords-libssh-divergence.md) - mdrfckr Wave 3: per-session rotating passwords replace the static credential, and a second node variant using libssh_0.9.6 runs alongside the libssh_0.12.0 fleet
 - [NINGI-WRITEUP-016](writeups/NINGI-WRITEUP-016-panchan-p2p-ssh-worm.md) - Panchan P2P botnet: Go-based P2P SSH worm propagating via SFTP uploads of a 30MB stripped 'sshd' binary, implementing persistence via systemd-worker.service, and exchanging P2P commands (sharerigconfig, sharepeer, shareupdateinfo) to distribute cryptomining rigs
 - [NINGI-WRITEUP-017](writeups/NINGI-WRITEUP-017-eggdrop-python-mod-parse-tcl-list-crash.md) - eggdrop python.mod crash I found and reported upstream: a malformed Tcl list passed to `parse_tcl_list()` segfaults the whole bot instead of raising a catchable exception; root-caused to a missing error-path return in `pycmds.c`, fixed and merged (eggheads/eggdrop #1913)
+- [NINGI-WRITEUP-018](writeups/NINGI-WRITEUP-018-russh-linux-loader-encrypted-arg.md) - russh-based `/linux` loader across three rotating C2s: single x86-64 ELF, curl/wget/`/dev/tcp` triple-fallback delivery, encrypted runtime argument, and a `/tmp/.opass` infection marker; payload left unconfirmed because egress-deny blocked the fetch
 
 ### Tooling
 
