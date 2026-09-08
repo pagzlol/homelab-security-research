@@ -1,6 +1,6 @@
 # Ningi Detection Lab Brand Assets
 
-These assets match the dark detection-lab style from `ndl-banner.svg`: cyan grid lines, a compact N mark, deep blue-black backgrounds, and amber alert dots. The public domain stays `ningi.dev`, but the brand name is `Ningi Detection Lab`.
+These assets use a clean, professional light style: a navy N mark on white/light-gray backgrounds. The public domain stays `ningi.dev`, but the brand name is `Ningi Detection Lab`.
 
 ## Files
 
@@ -13,11 +13,10 @@ These assets match the dark detection-lab style from `ndl-banner.svg`: cyan grid
 
 ## Palette
 
-- Background: `#04070B`, `#09121C`, `#10263A`
-- Grid line: `#2A536E`
-- Signal cyan: `#67E0FF`, `#109BC8`, `#7BDFFF`
-- Text: `#F2FAFF`, `#B3D3E2`, `#89AFC1`
-- Alert amber: `#FF8A5B`
+- Background: `#FFFFFF`, `#F6F7F9`
+- Accent bar: `#1F4D8C`
+- Navy: `#1F4D8C`, `#16386B`
+- Text: `#171A21`, `#565F6D`, `#838C99`
 
 ## GitHub
 
