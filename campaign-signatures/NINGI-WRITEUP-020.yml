@@ -1,0 +1,13 @@
+campaign: NINGI-WRITEUP-020
+description: Stella launch-day SSH credential-spray fleet (echo xsec) and Telnet Mirai-style busybox HISILICON probe
+block_days: 30
+patterns:
+  - match: "echo xsec"
+  - match: "/bin/busybox HISILICON"
+  - match: "/bin/busybox cat /proc/self/exe || cat /proc/self/exe"
+  - match: ".f && chmod 777 "
+source_ips:
+  - 103.174.102.29   # Cluster A primary node
+  - 154.18.197.29    # Cluster A secondary node
+  - 5.172.178.253    # Cluster A tertiary node (ubuntu login)
+  - 222.114.200.83   # Cluster B — busybox HISILICON probe

@@ -57,6 +57,7 @@ It is all based on a live environment. That includes a real compromise in March 
 - [NINGI-WRITEUP-017](writeups/NINGI-WRITEUP-017-eggdrop-python-mod-parse-tcl-list-crash.md) - eggdrop python.mod crash I found and reported upstream: a malformed Tcl list passed to `parse_tcl_list()` segfaults the whole bot instead of raising a catchable exception; root-caused to a missing error-path return in `pycmds.c`, fixed and merged (eggheads/eggdrop #1913)
 - [NINGI-WRITEUP-018](writeups/NINGI-WRITEUP-018-russh-linux-loader-encrypted-arg.md) - russh-based `/linux` loader across three rotating C2s: single x86-64 ELF, curl/wget/`/dev/tcp` triple-fallback delivery, encrypted runtime argument, and a `/tmp/.opass` infection marker; payload left unconfirmed because egress-deny blocked the fetch
 - [NINGI-WRITEUP-019](writeups/NINGI-WRITEUP-019-quadlock-carplay-adaptor-ota-disclosure.md) - Quad Lock Wireless CarPlay adaptor teardown: unsigned firmware with MD5-only integrity, plaintext HTTP update path, and an inverted trust model where the phone (not the vendor) delivers firmware to the device; private vendor disclosure in progress, infrastructure details redacted
+- [NINGI-WRITEUP-020](writeups/NINGI-WRITEUP-020-stella-launch-day-mirai-fleet-and-busybox-probe.md) - Stella honeypot launch-day traffic: a 3-node SSH credential-spray fleet (370 unique passwords, zero reuse, `echo xsec` canary) and a Telnet Mirai-lineage busybox `HISILICON` chipset probe with a 12-directory writable-path loop; neither matched an existing signature so neither was auto-blocked
 
 ### Tooling
 
